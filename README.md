@@ -1,4 +1,4 @@
-# Swift Compiler Discordapp Bot
+# Swift Discord Bot
 
 ### Deploy to Heroku
 
