@@ -111,6 +111,8 @@ App.bot.on(.guildAvailable) { data in
 
 // MARK: - MessageCreate
 App.bot.on(.messageCreate) {
+    let probability = Probability()
+    
     guard let message = $0 as? Message else { return }
     
     let content = message.content
@@ -123,15 +125,13 @@ App.bot.on(.messageCreate) {
     
     switch botCommand {
     case .分流:
-        let probabilityItem: [Probability.ProbabilityItem] = ServiceDiversion.allCases.map {
-            .init(name: $0.name, percent: 1)
-        }
-        
-        let probability = Probability()
+        let probabilityItem: [Probability.ProbabilityItem] = ServiceDiversion
+            .allCases
+            .map { .init(name: $0.name, percent: 1) }
         
         guard let item = probability.random(in: probabilityItem) else { return }
         
-        message.reply(with: item.name)
+        message.reply(with: ":map:" + " `" + item.name + "`")
     }
 }
 
