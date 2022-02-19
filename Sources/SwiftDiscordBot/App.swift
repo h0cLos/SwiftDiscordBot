@@ -31,6 +31,7 @@ struct App {
         ```
         """
     }
+    static let prefixString = "!"
     static let nickname = environment["NICKNAME"] ?? implicitNickname ?? ""
     static let playing = environment["SWIFT_VERSION"].map { "swift-" + $0 } ?? "unkown swift build"
 
