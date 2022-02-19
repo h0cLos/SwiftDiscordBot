@@ -1,0 +1,6 @@
+build:
+  docker:
+    worker: Dockerfile.heroku
+  config:
+    DOCKER_IMAGE: norionomura/swift:5.0
+

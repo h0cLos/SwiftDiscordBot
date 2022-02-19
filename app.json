@@ -1,0 +1,28 @@
+{
+  "name": "Swift Compiler Discord Bot",
+  "keywords": [
+    "swift",
+    "compiler",
+    "discord",
+    "bot"
+  ],
+  "repository": "https://github.com/h0cLos/SwiftCompilerDiscordappBot",
+  "stack": "container",
+  "env": {
+    "DISCORD_TOKEN": {
+      "description": "A secret key for verifying the integrity of signed cookies.",
+      "required": true
+    },
+    "NICKNAME": {
+      "description": "Bot's nickname",
+      "required": false
+    },
+    "TIMEOUT": {
+      "required": false
+    },
+    "UPLOADER": {
+      "description": "Select uploader from [`file.io`, `ptpb.pw`]",
+      "required": false
+    }
+  }
+}
