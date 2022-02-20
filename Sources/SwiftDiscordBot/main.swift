@@ -7,6 +7,7 @@ setlinebuf(stdout)
 /// 指令
 enum BotCommand: String {
     case 分流
+    case 赫敦
 }
 
 /// 分流
@@ -88,6 +89,21 @@ enum ServiceDiversion: CaseIterable {
             return "艾裴莉雅-3"
         }
     }
+    /// 赫敦
+    var hutton: Bool {
+        switch self {
+        case .梅迪亞_2, .梅迪亞_3,
+             .瓦倫西亞_2,
+             .賽林迪亞_2, .賽林迪亞_3,
+             .卡瑪希爾比亞_2, .卡瑪希爾比亞_3,
+             .卡爾佩恩_2,
+             .巴雷諾斯_2, .巴雷諾斯_3,
+             .阿勒沙:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 // MARK: - edit status
@@ -132,6 +148,15 @@ App.bot.on(.messageCreate) {
         guard let item = probability.random(in: probabilityItem) else { return }
         
         message.reply(with: ":map:" + " `" + item.name + "`")
+    case .赫敦:
+        let probabilityItem: [Probability.ProbabilityItem] = ServiceDiversion
+            .allCases
+            .filter { $0.hutton }
+            .map { .init(name: $0.name, percent: 1) }
+        
+        guard let item = probability.random(in: probabilityItem) else { return }
+        
+        message.reply(with: ":microbe:" + " `" + item.name + "`")
     }
 }
 
