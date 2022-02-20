@@ -11,7 +11,7 @@ enum BotCommand: String {
 }
 
 /// 分流
-enum ServiceDiversion: CaseIterable {
+enum ServiceDiversion: String, CaseIterable {
     case 梅迪亞_1
     case 梅迪亞_2
     case 梅迪亞_3
@@ -38,56 +38,7 @@ enum ServiceDiversion: CaseIterable {
     case 艾裴莉雅_3
     /// 名稱
     var name: String {
-        switch self {
-        case .梅迪亞_1:
-            return "梅迪亞-1"
-        case .梅迪亞_2:
-            return "梅迪亞-2"
-        case .梅迪亞_3:
-            return "梅迪亞-3"
-        case .卡爾佩恩_1:
-            return "卡爾佩恩-1"
-        case .卡爾佩恩_2:
-            return "卡爾佩恩-2"
-        case .卡爾佩恩_3:
-            return "卡爾佩恩-3"
-        case .卡瑪希爾比亞_1:
-            return "卡瑪希爾比亞-1"
-        case .卡瑪希爾比亞_2:
-            return "卡瑪希爾比亞-2"
-        case .卡瑪希爾比亞_3:
-            return "卡瑪希爾比亞-3"
-        case .巴雷諾斯_1:
-            return "巴雷諾斯-1"
-        case .巴雷諾斯_2:
-            return "巴雷諾斯-2"
-        case .巴雷諾斯_3:
-            return "巴雷諾斯-3"
-        case .璐璐飛_1:
-            return "璐璐飛-1"
-        case .璐璐飛_2:
-            return "璐璐飛-2"
-        case .阿勒沙:
-            return "阿勒沙"
-        case .瓦倫西亞_1:
-            return "瓦倫西亞-1"
-        case .瓦倫西亞_2:
-            return "瓦倫西亞-2"
-        case .瓦倫西亞_3:
-            return "瓦倫西亞-3"
-        case .賽林迪亞_1:
-            return "賽林迪亞-1"
-        case .賽林迪亞_2:
-            return "賽林迪亞-2"
-        case .賽林迪亞_3:
-            return "賽林迪亞-3"
-        case .艾裴莉雅_1:
-            return "艾裴莉雅-1"
-        case .艾裴莉雅_2:
-            return "艾裴莉雅-2"
-        case .艾裴莉雅_3:
-            return "艾裴莉雅-3"
-        }
+        return rawValue.replacingOccurrences(of: "_", with: "-")
     }
     /// 赫敦
     var hutton: Bool {
