@@ -29,8 +29,11 @@ extension Bot {
     }
     /// 指令
     enum BotCommand: String {
+        /// 查詢指令
+        case help
         case 分流
         case 赫敦
+        case 退坑
     }
 }
 
@@ -126,6 +129,17 @@ private extension Bot {
             guard let botCommand = BotCommand(rawValue: command) else { return }
             
             switch botCommand {
+            case .help:
+                let helpMessage = """
+                    ```
+                    目前開放指令
+                    隨機分流: !分流
+                    隨機赫敦分流: !赫敦
+                    隨機秒數: !退坑
+                    ```
+                    """
+                
+                message.reply(with: helpMessage)
             case .分流:
                 let probabilityItem: [Probability.ProbabilityItem] = ServiceDiversion
                     .allCases
@@ -143,6 +157,17 @@ private extension Bot {
                 guard let item = probability.random(in: probabilityItem) else { return }
                 
                 message.reply(with: ":microbe:" + " `" + item.name + "`")
+            case .退坑:
+                let secondsItem = Array(1...29).shuffled()
+                
+                let probabilityItem: [Probability.ProbabilityItem] = secondsItem
+                    .map {
+                        .init(name: String($0), percent: 1)
+                    }
+                
+                guard let item = probability.random(in: probabilityItem) else { return }
+                
+                message.reply(with: ":game_die:" + " `" + item.name + "秒`")
             }
         }
     }
