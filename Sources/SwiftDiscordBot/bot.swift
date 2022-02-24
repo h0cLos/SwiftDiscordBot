@@ -68,8 +68,8 @@ extension Bot {
         var name: String {
             return rawValue.replacingOccurrences(of: "_", with: "-")
         }
-        /// 赫敦
-        var hutton: Bool {
+        /// 是否為赫敦分流
+        var isHutton: Bool {
             switch self {
             case .梅迪亞_2, .梅迪亞_3,
                  .卡爾佩恩_2,
@@ -78,6 +78,15 @@ extension Bot {
                  .阿勒沙,
                  .瓦倫西亞_2,
                  .賽林迪亞_2, .賽林迪亞_3:
+                return true
+            default:
+                return false
+            }
+        }
+        /// 是否為 PVP 分流
+        var isPvp: Bool {
+            switch self {
+            case .阿勒沙:
                 return true
             default:
                 return false
@@ -140,34 +149,47 @@ private extension Bot {
                     """
                 
                 message.reply(with: helpMessage)
-            case .分流:
-                let probabilityItem: [Probability.ProbabilityItem] = ServiceDiversion
-                    .allCases
-                    .map { .init(name: $0.name, percent: 1) }
-                
-                guard let item = probability.random(in: probabilityItem) else { return }
-                
-                message.reply(with: ":map:" + " `" + item.name + "`")
-            case .赫敦:
-                let probabilityItem: [Probability.ProbabilityItem] = ServiceDiversion
-                    .allCases
-                    .filter { $0.hutton }
-                    .map { .init(name: $0.name, percent: 1) }
-                
-                guard let item = probability.random(in: probabilityItem) else { return }
-                
-                message.reply(with: ":microbe:" + " `" + item.name + "`")
-            case .退坑:
-                let secondsItem = Array(1...29).shuffled()
-                
-                let probabilityItem: [Probability.ProbabilityItem] = secondsItem
-                    .map {
-                        .init(name: String($0), percent: 1)
+            case .分流, .赫敦:
+                var isHutton: Bool {
+                    guard case let command = botCommand, command == .赫敦 else {
+                        return false
                     }
+                    
+                    return true
+                }
                 
-                guard let item = probability.random(in: probabilityItem) else { return }
+                let probabilityItem: [Probability.ProbabilityItem<ServiceDiversion>] = ServiceDiversion
+                    .allCases
+                    .filter { isHutton ? $0.isHutton : true }
+                    .map { .init(item: $0, percent: 1) }
                 
-                message.reply(with: ":game_die:" + " `" + item.name + "秒`")
+                guard let random = probability.random(in: probabilityItem) else { return }
+                
+                var replyMessage = ":map: `" + random.item.name + "`"
+                
+                guard random.item.isHutton else {
+                    message.reply(with: replyMessage)
+                    
+                    return
+                }
+                
+                guard random.item.isPvp else {
+                    replyMessage += " :microbe:"
+                    message.reply(with: replyMessage)
+                    
+                    return
+                }
+                
+                replyMessage += " :crossed_swords: :microbe:"
+                message.reply(with: replyMessage)
+            case .退坑:
+                let secondsItem = Array(1...28).shuffled()
+                let probabilityItem: [Probability.ProbabilityItem<String>] = secondsItem
+                    .map { .init(item: String($0), percent: 1) }
+                
+                guard let random = probability.random(in: probabilityItem) else { return }
+                
+                message.reply(with: ":game_die:" + " `" + random.item + "秒`")
             }
         }
     }
