@@ -9,16 +9,16 @@ class Probability {
 }
 
 extension Probability {
-    struct ProbabilityItem {
-        /// 標題
-        let name: String
+    struct ProbabilityItem<T> {
+        /// 物件
+        let item: T
         /// 機率
         let percent: Int
     }
 }
 
 extension Probability {
-    func random(in: [ProbabilityItem]) -> ProbabilityItem? {
+    func random<T>(in: [ProbabilityItem<T>]) -> ProbabilityItem<T>? {
         var percentSum = `in`
             .map { $0.percent }
             .reduce(0) { $0 + $1 }
