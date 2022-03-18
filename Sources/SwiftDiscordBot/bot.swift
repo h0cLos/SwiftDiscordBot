@@ -6,16 +6,6 @@ import Foundation
 import Sword
 
 class Bot: Sword {
-    init(token: String) {
-        super.init(token: token)
-        
-        bind()
-        
-        App.log("is online and playing \(App.playing).")
-    }
-}
-
-extension Bot {
     /// 狀態
     enum BotStatus: String {
         /// 在線
@@ -33,11 +23,9 @@ extension Bot {
         case help
         case 分流
         case 赫敦
+        case 骰子
         case 退坑
     }
-}
-
-extension Bot {
     /// 分流
     enum ServiceDiversion: String, CaseIterable {
         case 梅迪亞_1
@@ -93,6 +81,30 @@ extension Bot {
             }
         }
     }
+    /// 世界王
+    enum Boss: String, Codable {
+        case 克價卡
+        case 庫屯
+        case 卡嵐達
+        case 羅裴勒
+        case 奧平
+        case 貝爾
+        case 卡莫斯
+        case 肯恩特_木拉卡
+    }
+    
+    init(token: String) {
+        super.init(token: token)
+        
+        bind()
+        
+        loadData()
+        
+        App.log("is online and playing \(App.playing).")
+    }
+    
+    /// 世界王日程表 model
+    private var bossScheduleModel: BossScheduleModel?
 }
 
 // 主體
@@ -108,12 +120,24 @@ extension Bot {
 }
 
 private extension Bot {
+    func loadData() {
+        guard let data = bossJson else { return }
+        
+        do {
+            bossScheduleModel = try JSONDecoder().decode(BossScheduleModel.self, from: data)
+        } catch {
+            assert(false, "\(error)")
+        }
+    }
+    
     func bind() {
         on(.guildAvailable) { [weak self] in
             guard let self = self,
                   let guild = $0 as? Guild else { return }
             
             App.log("Guild Available: \(guild.name)")
+            
+            #if os(Linux)
             
             if guild.members[self.user!.id]?.nick != App.nickname {
                 guild.setNickname(to: App.nickname) { error in
@@ -122,6 +146,8 @@ private extension Bot {
                     }
                 }
             }
+            
+            #endif
         }
         
         on(.messageCreate) {
@@ -144,7 +170,7 @@ private extension Bot {
                     目前開放指令
                     隨機分流: !分流
                     隨機赫敦分流: !赫敦
-                    隨機秒數: !退坑
+                    隨機秒數: !骰子、!退坑
                     ```
                     """
                 
@@ -182,7 +208,7 @@ private extension Bot {
                 
                 replyMessage += " :crossed_swords: :microbe:"
                 message.reply(with: replyMessage)
-            case .退坑:
+            case .骰子, .退坑:
                 let secondsItem = Array(1...28).shuffled()
                 let probabilityItem: [Probability.ProbabilityItem<String>] = secondsItem
                     .map { .init(item: String($0), percent: 1) }
