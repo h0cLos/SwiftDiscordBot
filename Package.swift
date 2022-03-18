@@ -3,6 +3,8 @@
 
 import PackageDescription
 
+#if os(Linux)
+
 let package = Package(
     name: "SwiftDiscordBot",
     dependencies: [
@@ -17,3 +19,20 @@ let package = Package(
         ),
     ]
 )
+
+#else
+
+let package = Package(
+    name: "SwiftDiscordBot",
+    dependencies: [
+        .package(url: "https://github.com/Azoy/Sword", .branch("master"))
+    ],
+    targets: [
+        .target(
+            name: "SwiftDiscordBot",
+            dependencies: ["Sword"]
+        )
+    ]
+)
+
+#endif
