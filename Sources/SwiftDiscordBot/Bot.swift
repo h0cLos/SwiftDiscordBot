@@ -137,8 +137,6 @@ private extension Bot {
             
             App.log("Guild Available: \(guild.name)")
             
-            #if os(Linux)
-            
             if guild.members[self.user!.id]?.nick != App.nickname {
                 guild.setNickname(to: App.nickname) { error in
                     if let error = error {
@@ -146,8 +144,6 @@ private extension Bot {
                     }
                 }
             }
-            
-            #endif
         }
         
         on(.messageCreate) {

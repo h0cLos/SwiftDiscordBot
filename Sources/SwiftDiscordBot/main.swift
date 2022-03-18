@@ -1,5 +1,3 @@
-#if os(Linux)
-
 import Foundation
 import Sword
 import SwiftBacktrace
@@ -18,13 +16,3 @@ SwiftBacktrace.setInterruptFunction { signo in
 
 App.bot.status(to: .online, playItem: App.playing)
 App.bot.connect()
-
-#else
-
-import Foundation
-import Sword
-
-App.bot.status(to: .online, playItem: App.playing)
-App.bot.connect()
-
-#endif
