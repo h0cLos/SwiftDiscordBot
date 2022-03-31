@@ -22,12 +22,14 @@ class Bot: Sword {
         /// 查詢指令
         case help
         case 分流
+        case 分流列表
         case 赫敦
         case 骰子
         case 退坑
     }
     /// 分流
     enum ServiceDiversion: String, CaseIterable {
+        case 阿勒沙
         case 梅迪亞_1
         case 梅迪亞_2
         case 梅迪亞_3
@@ -42,7 +44,9 @@ class Bot: Sword {
         case 巴雷諾斯_3
         case 璐璐飛_1
         case 璐璐飛_2
-        case 阿勒沙
+        case 璐璐飛_3
+        case 璐璐飛_4
+        case 璐璐飛_5
         case 瓦倫西亞_1
         case 瓦倫西亞_2
         case 瓦倫西亞_3
@@ -59,13 +63,19 @@ class Bot: Sword {
         /// 是否為赫敦分流
         var isHutton: Bool {
             switch self {
-            case .梅迪亞_2, .梅迪亞_3,
-                 .卡爾佩恩_2,
-                 .卡瑪希爾比亞_2, .卡瑪希爾比亞_3,
-                 .巴雷諾斯_2, .巴雷諾斯_3,
-                 .阿勒沙,
-                 .瓦倫西亞_2,
-                 .賽林迪亞_2, .賽林迪亞_3:
+            case .阿勒沙:
+                fallthrough
+            case .梅迪亞_2, .梅迪亞_3:
+                fallthrough
+            case .卡爾佩恩_2:
+                fallthrough
+            case .卡瑪希爾比亞_2, .卡瑪希爾比亞_3:
+                fallthrough
+            case .巴雷諾斯_2, .巴雷諾斯_3:
+                fallthrough
+            case .瓦倫西亞_2:
+                fallthrough
+            case .賽林迪亞_2, .賽林迪亞_3:
                 return true
             default:
                 return false
@@ -130,6 +140,22 @@ private extension Bot {
         }
     }
     
+    func serviceDiversionNameFormat(_ diversion: ServiceDiversion) -> String {
+        var replyMessage = ":map: `" + diversion.name + "`"
+        
+        guard diversion.isHutton else {
+            return replyMessage
+        }
+
+        guard diversion.isPvp else {
+            replyMessage += " :microbe:"
+            return replyMessage
+        }
+
+        replyMessage += " :crossed_swords: :microbe:"
+        return replyMessage
+    }
+    
     func bind() {
         on(.guildAvailable) { [weak self] in
             guard let self = self,
@@ -146,10 +172,11 @@ private extension Bot {
             }
         }
         
-        on(.messageCreate) {
+        on(.messageCreate) { [weak self] in
             let probability = Probability()
             
-            guard let message = $0 as? Message else { return }
+            guard let self = self,
+                  let message = $0 as? Message else { return }
             
             let content = message.content
             
@@ -187,23 +214,15 @@ private extension Bot {
                 
                 guard let random = probability.random(in: probabilityItem) else { return }
                 
-                var replyMessage = ":map: `" + random.item.name + "`"
+                message.reply(with: self.serviceDiversionNameFormat(random.item))
+            case .分流列表:
+                let diversionList = ServiceDiversion
+                    .allCases
+                    .map { [weak self] item -> String in
+                        self?.serviceDiversionNameFormat(item) ?? .init()
+                    }
                 
-                guard random.item.isHutton else {
-                    message.reply(with: replyMessage)
-                    
-                    return
-                }
-                
-                guard random.item.isPvp else {
-                    replyMessage += " :microbe:"
-                    message.reply(with: replyMessage)
-                    
-                    return
-                }
-                
-                replyMessage += " :crossed_swords: :microbe:"
-                message.reply(with: replyMessage)
+                message.reply(with: diversionList.joined(separator: "\n"))
             case .骰子, .退坑:
                 let secondsItem = Array(1...28).shuffled()
                 let probabilityItem: [Probability.ProbabilityItem<String>] = secondsItem
