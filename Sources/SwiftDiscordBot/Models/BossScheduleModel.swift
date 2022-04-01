@@ -6,24 +6,24 @@ import Foundation
 
 struct BossScheduleModel: Codable {
     /// 世界王列表
-    let boss: [BossModel]?
+    let boss: [BossModel]
 }
 
 struct BossModel: Codable {
     /// 世界王名稱
-    let name: Boss?
+    let boss: Boss?
     /// 世界王出現排程
-    let schedule: [ScheduleModel]?
+    let schedule: [ScheduleModel]
 }
 
 struct ScheduleModel: Codable {
     /// 每週會出現的時間
-    let week: Int
+    let weekday: WeekDay?
     /// 當天會出現的時間
-    let times: [ScheduleTimesModel]?
+    let times: [ScheduleTimesModel]
 }
 
 struct ScheduleTimesModel: Codable {
-    /// 時間
-    let time: Int?
+    /// 開始時間
+    let start: String?
 }
