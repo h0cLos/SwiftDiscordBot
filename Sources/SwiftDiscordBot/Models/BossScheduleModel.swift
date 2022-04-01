@@ -11,7 +11,7 @@ struct BossScheduleModel: Codable {
 
 struct BossModel: Codable {
     /// 世界王名稱
-    let name: Bot.Boss?
+    let name: Boss?
     /// 世界王出現排程
     let schedule: [ScheduleModel]?
 }
