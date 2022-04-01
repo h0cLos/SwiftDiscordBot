@@ -7,7 +7,7 @@ import Sword
 
 class Bot: Sword {
     /// 狀態
-    enum BotStatus: String {
+    enum Status: String {
         /// 在線
         case online
         /// 閒置
@@ -18,89 +18,31 @@ class Bot: Sword {
         case invisible
     }
     /// 指令
-    enum BotCommand: String {
+    enum Command: String, CaseIterable {
         /// 查詢指令
-        case help
-        case 分流
+        case 幫助
         case 分流列表
+        case 分流
         case 赫敦
         case 骰子
         case 退坑
-    }
-    /// 分流
-    enum ServiceDiversion: String, CaseIterable {
-        case 阿勒沙
-        case 梅迪亞_1
-        case 梅迪亞_2
-        case 梅迪亞_3
-        case 卡爾佩恩_1
-        case 卡爾佩恩_2
-        case 卡爾佩恩_3
-        case 卡瑪希爾比亞_1
-        case 卡瑪希爾比亞_2
-        case 卡瑪希爾比亞_3
-        case 巴雷諾斯_1
-        case 巴雷諾斯_2
-        case 巴雷諾斯_3
-        case 璐璐飛_1
-        case 璐璐飛_2
-        case 璐璐飛_3
-        case 璐璐飛_4
-        case 璐璐飛_5
-        case 瓦倫西亞_1
-        case 瓦倫西亞_2
-        case 瓦倫西亞_3
-        case 賽林迪亞_1
-        case 賽林迪亞_2
-        case 賽林迪亞_3
-        case 艾裴莉雅_1
-        case 艾裴莉雅_2
-        case 艾裴莉雅_3
-        /// 名稱
-        var name: String {
-            return rawValue.replacingOccurrences(of: "_", with: "-")
-        }
-        /// 是否為赫敦分流
-        var isHutton: Bool {
+        /// 描述
+        var description: String {
             switch self {
-            case .阿勒沙:
-                fallthrough
-            case .梅迪亞_2, .梅迪亞_3:
-                fallthrough
-            case .卡爾佩恩_2:
-                fallthrough
-            case .卡瑪希爾比亞_2, .卡瑪希爾比亞_3:
-                fallthrough
-            case .巴雷諾斯_2, .巴雷諾斯_3:
-                fallthrough
-            case .瓦倫西亞_2:
-                fallthrough
-            case .賽林迪亞_2, .賽林迪亞_3:
-                return true
-            default:
-                return false
+            case .幫助:
+                return "顯示所有指令"
+            case .分流列表:
+                return "顯示所有分流"
+            case .分流:
+                return "隨機挑選分流 (包含赫敦分流)"
+            case .赫敦:
+                return "隨機挑選赫敦分流"
+            case .骰子:
+                return "隨機挑選 1-28 的秒數"
+            case .退坑:
+                return "同指令「骰子」"
             }
         }
-        /// 是否為 PVP 分流
-        var isPvp: Bool {
-            switch self {
-            case .阿勒沙:
-                return true
-            default:
-                return false
-            }
-        }
-    }
-    /// 世界王
-    enum Boss: String, Codable {
-        case 克價卡
-        case 庫屯
-        case 卡嵐達
-        case 羅裴勒
-        case 奧平
-        case 貝爾
-        case 卡莫斯
-        case 肯恩特_木拉卡
     }
     
     init(token: String) {
@@ -120,42 +62,18 @@ class Bot: Sword {
 // 主體
 extension Bot {
     /// 更變調整
-    func status(to status: BotStatus, playItem: String?) {
-        if let item = playItem {
-            editStatus(to: status.rawValue, playing: item)
-        } else {
+    func status(to status: Status, playItem: String?) {
+        guard let item = playItem else {
             editStatus(to: status.rawValue)
+            return
         }
+        
+        editStatus(to: status.rawValue,
+                   playing: item)
     }
 }
 
 private extension Bot {
-    func loadData() {
-        guard let data = bossJson else { return }
-        
-        do {
-            bossScheduleModel = try JSONDecoder().decode(BossScheduleModel.self, from: data)
-        } catch {
-            assert(false, "\(error)")
-        }
-    }
-    
-    func serviceDiversionNameFormat(_ diversion: ServiceDiversion) -> String {
-        var replyMessage = ":map: `" + diversion.name + "`"
-        
-        guard diversion.isHutton else {
-            return replyMessage
-        }
-
-        guard diversion.isPvp else {
-            replyMessage += " :microbe:"
-            return replyMessage
-        }
-
-        replyMessage += " :crossed_swords: :microbe:"
-        return replyMessage
-    }
-    
     func bind() {
         on(.guildAvailable) { [weak self] in
             guard let self = self,
@@ -176,28 +94,31 @@ private extension Bot {
             let probability = Probability()
             
             guard let self = self,
-                  let message = $0 as? Message else { return }
+                  let message = $0 as? Message,
+                  let user = message.author,
+                  let userName = user.username else { return }
+            
+            let isBot = user.isBot ?? false
+            
+            guard !isBot else { return }
             
             let content = message.content
+            
+            App.log("收到新訊息:「\(content)」來自「\(userName) (\(user.id))」於「\(message.timestamp)」。")
             
             guard content.hasPrefix(App.prefixString) else { return }
             
             let command = content.replacingOccurrences(of: App.prefixString, with: "")
             
-            guard let botCommand = BotCommand(rawValue: command) else { return }
+            guard let botCommand = Command(rawValue: command) else { return }
             
             switch botCommand {
-            case .help:
-                let helpMessage = """
-                    ```
-                    目前開放指令
-                    隨機分流: !分流
-                    隨機赫敦分流: !赫敦
-                    隨機秒數: !骰子、!退坑
-                    ```
-                    """
+            case .幫助:
+                let commandHelp = Command
+                    .allCases
+                    .map { ":bulb: `\(App.prefixString)\($0)` - `\($0.description)`" }
                 
-                message.reply(with: helpMessage)
+                message.reply(with: commandHelp.joined(separator: "\n"))
             case .分流, .赫敦:
                 var isHutton: Bool {
                     guard case let command = botCommand, command == .赫敦 else {
@@ -233,5 +154,31 @@ private extension Bot {
                 message.reply(with: ":game_die:" + " `" + random.item + "秒`")
             }
         }
+    }
+    
+    func loadData() {
+        guard let data = bossJson else { return }
+        
+        do {
+            bossScheduleModel = try JSONDecoder().decode(BossScheduleModel.self, from: data)
+        } catch {
+            assert(false, "\(error)")
+        }
+    }
+    
+    func serviceDiversionNameFormat(_ diversion: ServiceDiversion) -> String {
+        var replyMessage = ":map: `" + diversion.name + "`"
+        
+        guard diversion.isHutton else {
+            return replyMessage
+        }
+
+        guard diversion.isPvp else {
+            replyMessage += " :microbe:"
+            return replyMessage
+        }
+
+        replyMessage += " :crossed_swords: :microbe:"
+        return replyMessage
     }
 }
