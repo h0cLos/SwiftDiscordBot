@@ -19,8 +19,8 @@ class Bot: Sword {
     }
     /// 指令
     enum Command: String, CaseIterable {
-        /// 查詢指令
         case 幫助
+        case 測試
         case 分流列表
         case 分流
         case 赫敦
@@ -31,6 +31,8 @@ class Bot: Sword {
             switch self {
             case .幫助:
                 return "顯示所有指令"
+            case .測試:
+                return "試錯階段指令"
             case .分流列表:
                 return "顯示所有分流"
             case .分流:
@@ -43,19 +45,26 @@ class Bot: Sword {
                 return "同指令「骰子」"
             }
         }
+        /// 是否顯示
+        var present: Bool {
+            switch self {
+            case .幫助, .測試:
+                return false
+            default:
+                return true
+            }
+        }
     }
     
     init(token: String) {
         super.init(token: token)
         
         bind()
-        
         loadData()
         
         App.log("is online and playing \(App.playing).")
     }
-    
-    /// 世界王日程表 model
+    /// 世界王日程表 model（未完成）
     private var bossScheduleModel: BossScheduleModel?
 }
 
@@ -116,9 +125,12 @@ private extension Bot {
             case .幫助:
                 let commandHelp = Command
                     .allCases
+                    .filter { $0.present }
                     .map { ":bulb: `\(App.prefixString)\($0)` - `\($0.description)`" }
                 
                 message.reply(with: commandHelp.joined(separator: "\n"))
+            case .測試:
+                App.log("\(message)")
             case .分流, .赫敦:
                 var isHutton: Bool {
                     guard case let command = botCommand, command == .赫敦 else {
