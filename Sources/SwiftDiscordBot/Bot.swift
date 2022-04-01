@@ -26,6 +26,14 @@ class Bot: Sword {
         case 赫敦
         case 骰子
         case 退坑
+        /// - 世界王測試指令
+        case 週日
+        case 週一
+        case 週二
+        case 週三
+        case 週四
+        case 週五
+        case 週六
         /// 描述
         var description: String {
             switch self {
@@ -43,6 +51,8 @@ class Bot: Sword {
                 return "隨機挑選 1-28 的秒數"
             case .退坑:
                 return "同指令「骰子」"
+            case .週日, .週一, .週二, .週三, .週四, .週五, .週六:
+                return "列出當天的世界王與時間（Beta）"
             }
         }
         /// 是否顯示
@@ -54,13 +64,28 @@ class Bot: Sword {
                 return true
             }
         }
+        /// 是否為測試
+        var test: Bool {
+            switch self {
+            case .測試, .週日, .週一, .週二, .週三, .週四, .週五, .週六:
+                return true
+            default:
+                return false
+            }
+        }
+    }
+    
+    struct BossDaySchedule {
+        let boss: Boss?
+        let schedule: [ScheduleModel]
     }
     
     init(token: String) {
         super.init(token: token)
         
-        bind()
+        // 讀取世界王排程
         loadData()
+        bind()
         
         App.log("is online and playing \(App.playing).")
     }
@@ -126,9 +151,16 @@ private extension Bot {
                 let commandHelp = Command
                     .allCases
                     .filter { $0.present }
+                    .filter { !$0.test }
                     .map { ":bulb: `\(App.prefixString)\($0)` - `\($0.description)`" }
                 
-                message.reply(with: commandHelp.joined(separator: "\n"))
+                let commandTest = Command
+                    .allCases
+                    .filter { $0.present }
+                    .filter { $0.test }
+                    .map { ":hammer_pick: `\(App.prefixString)\($0)` - `\($0.description)`" }
+                
+                message.reply(with: (commandHelp + commandTest).joined(separator: "\n"))
             case .測試:
                 App.log("\(message)")
             case .分流, .赫敦:
@@ -164,6 +196,29 @@ private extension Bot {
                 guard let random = probability.random(in: probabilityItem) else { return }
                 
                 message.reply(with: ":game_die:" + " `" + random.item + "秒`")
+            case .週日, .週一, .週二, .週三, .週四, .週五, .週六:
+                var weekday: WeekDay {
+                    switch botCommand {
+                    case .週日:
+                        return .sunday
+                    case .週一:
+                        return .monday
+                    case .週二:
+                        return .tuesday
+                    case .週三:
+                        return .wednesday
+                    case .週四:
+                        return .thursday
+                    case .週五:
+                        return .friday
+                    case .週六:
+                        return .saturday
+                    default:
+                        return .unknown
+                    }
+                }
+                
+                message.reply(with: self.weekdayBossSchedule(weekday: weekday).joined(separator: "\n"))
             }
         }
     }
@@ -184,13 +239,44 @@ private extension Bot {
         guard diversion.isHutton else {
             return replyMessage
         }
-
+        
         guard diversion.isPvp else {
             replyMessage += " :microbe:"
             return replyMessage
         }
-
+        
         replyMessage += " :crossed_swords: :microbe:"
         return replyMessage
+    }
+    
+    func weekdayBossSchedule(weekday: WeekDay) -> [String] {
+        guard let model = bossScheduleModel else { return [] }
+        
+        let todaySchedule: [BossDaySchedule] = model
+            .boss
+            .map {
+                let schedule = $0
+                    .schedule
+                    .filter {
+                        ($0.weekday ?? .unknown) == weekday
+                    }
+                
+                return .init(boss: $0.boss,
+                             schedule: schedule)
+            }
+            .filter { !$0.schedule.isEmpty }
+        
+        return todaySchedule
+            .map {
+                guard let boss = $0.boss else { return .init() }
+                
+                let times = $0
+                    .schedule
+                    .map { $0.times }
+                    .flatMap { $0 }
+                    .map { "`\($0.start ?? .init())`" }
+                
+                return ":stopwatch: `\(boss.name)` - \(times.joined(separator: "、"))"
+            }
     }
 }

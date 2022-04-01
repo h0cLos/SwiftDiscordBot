@@ -5,154 +5,395 @@ var bossJson: Data? {
     {
       "boss": [
         {
-          "name": "克價卡",
           "schedule": [
             {
-              "week": 0,
               "times": [
                 {
-                  "time": 1100
+                  "start": "T11:00Z"
+                }
+              ],
+              "weekday": 1
+            },
+            {
+              "weekday": 2,
+              "times": [
+                {
+                  "start": "T02:00Z"
                 },
                 {
-                  "time": 2330
+                  "start": "T15:00Z"
+                },
+                {
+                  "start": "T23:30Z"
                 }
               ]
             },
             {
-              "week": 1,
+              "weekday": 3,
               "times": [
                 {
-                  "time": 200
+                  "start": "T11:00Z"
                 },
                 {
-                  "time": 1500
-                },
-                {
-                  "time": 2330
+                  "start": "T23:30Z"
                 }
               ]
             },
             {
-              "week": 2,
+              "weekday": 4,
               "times": [
                 {
-                  "time": 1100
+                  "start": "T11:00Z"
                 },
                 {
-                  "time": 2330
+                  "start": "T19:00Z"
                 }
               ]
             },
             {
-              "week": 3,
+              "weekday": 5,
               "times": [
                 {
-                  "time": 1900
+                  "start": "T15:00Z"
                 }
               ]
             },
             {
-              "week": 5,
+              "weekday": 6,
               "times": [
                 {
-                  "time": 200
+                  "start": "T02:00Z"
                 },
                 {
-                  "time": 1900
+                  "start": "T19:00Z"
                 }
               ]
             },
             {
-              "week": 6,
+              "weekday": 7,
               "times": [
                 {
-                  "time": 200
+                  "start": "T02:00Z"
                 },
                 {
-                  "time": 1900
+                  "start": "T19:00Z"
                 }
               ]
             }
-          ]
+          ],
+          "boss": "克價卡"
         },
         {
-          "name": "庫屯",
           "schedule": [
             {
-              "week": 0,
               "times": [
                 {
-                  "time": 1900
+                  "start": "T19:00Z"
                 }
-              ]
+              ],
+              "weekday": 1
             },
             {
-              "week": 1,
               "times": [
                 {
-                  "time": 200
+                  "start": "T02:00Z"
                 },
                 {
-                  "time": 1500
+                  "start": "T15:00Z"
                 },
                 {
-                  "time": 2330
+                  "start": "T23:30Z"
                 }
-              ]
+              ],
+              "weekday": 2
             },
             {
-              "week": 2,
               "times": [
                 {
-                  "time": 1100
+                  "start": "T11:00Z"
                 }
-              ]
+              ],
+              "weekday": 3
             },
             {
-              "week": 3,
               "times": [
                 {
-                  "time": 1900
+                  "start": "T19:00Z"
                 }
-              ]
+              ],
+              "weekday": 4
             },
             {
-              "week": 4,
               "times": [
                 {
-                  "time": 200
+                  "start": "T02:00Z"
                 },
                 {
-                  "time": 1100
+                  "start": "T11:00Z"
                 },
                 {
-                  "time": 2330
+                  "start": "T23:30Z"
                 }
-              ]
+              ],
+              "weekday": 5
             },
             {
-              "week": 5,
               "times": [
                 {
-                  "time": 1100
+                  "start": "T11:00Z"
                 },
                 {
-                  "time": 1900
+                  "start": "T19:00Z"
                 }
-              ]
+              ],
+              "weekday": 6
             },
             {
-              "week": 6,
               "times": [
                 {
-                  "time": 200
+                  "start": "T02:00Z"
                 },
                 {
-                  "time": 1100
+                  "start": "T11:00Z"
                 }
-              ]
+              ],
+              "weekday": 7
             }
-          ]
+          ],
+          "boss": "庫屯"
+        },
+        {
+          "schedule": [
+            {
+              "times": [
+                {
+                  "start": "T02:00Z"
+                },
+                {
+                  "start": "T19:00Z"
+                }
+              ],
+              "weekday": 1
+            },
+            {
+              "times": [
+                {
+                  "start": "T11:00Z"
+                }
+              ],
+              "weekday": 2
+            },
+            {
+              "times": [
+                {
+                  "start": "T15:00Z"
+                }
+              ],
+              "weekday": 3
+            },
+            {
+              "times": [
+                {
+                  "start": "T02:00Z"
+                },
+                {
+                  "start": "T23:30Z"
+                }
+              ],
+              "weekday": 4
+            },
+            {
+              "times": [
+                {
+                  "start": "T11:00Z"
+                },
+                {
+                  "start": "T23:30Z"
+                }
+              ],
+              "weekday": 5
+            },
+            {
+              "times": [
+                {
+                  "start": "T15:00Z"
+                }
+              ],
+              "weekday": 6
+            },
+            {
+              "times": [
+                {
+                  "start": "T11:00Z"
+                }
+              ],
+              "weekday": 7
+            }
+          ],
+          "boss": "卡嵐達"
+        },
+        {
+          "schedule": [
+            {
+              "times": [
+                {
+                  "start": "T02:00Z"
+                },
+                {
+                  "start": "T11:00Z"
+                }
+              ],
+              "weekday": 1
+            },
+            {
+              "times": [
+                {
+                  "start": "T02:00Z"
+                },
+                {
+                  "start": "T15:00Z"
+                },
+                {
+                  "start": "T23:30Z"
+                }
+              ],
+              "weekday": 3
+            },
+            {
+              "times": [
+                {
+                  "start": "T11:00Z"
+                },
+                {
+                  "start": "T23:30Z"
+                }
+              ],
+              "weekday": 4
+            },
+            {
+              "times": [
+                {
+                  "start": "T15:00Z"
+                },
+                {
+                  "start": "T19:00Z"
+                }
+              ],
+              "weekday": 5
+            },
+            {
+              "times": [
+                {
+                  "start": "T02:00Z"
+                },
+                {
+                  "start": "T15:00Z"
+                }
+              ],
+              "weekday": 6
+            },
+            {
+              "times": [
+                {
+                  "start": "T19:00Z"
+                }
+              ],
+              "weekday": 7
+            }
+          ],
+          "boss": "羅裴勒"
+        },
+        {
+          "schedule": [
+            {
+              "times": [
+                {
+                  "start": "T23:30Z"
+                }
+              ],
+              "weekday": 1
+            },
+            {
+              "times": [
+                {
+                  "start": "T15:00Z"
+                }
+              ],
+              "weekday": 7
+            }
+          ],
+          "boss": "奧平"
+        },
+        {
+          "schedule": [
+            {
+              "times": [
+                {
+                  "start": "T15:00Z"
+                }
+              ],
+              "weekday": 1
+            },
+            {
+              "times": [
+                {
+                  "start": "T19:00Z"
+                }
+              ],
+              "weekday": 3
+            }
+          ],
+          "boss": "貝爾"
+        },
+        {
+          "schedule": [
+            {
+              "times": [
+                {
+                  "start": "T19:00Z"
+                }
+              ],
+              "weekday": 2
+            },
+            {
+              "times": [
+                {
+                  "start": "T15:00Z"
+                }
+              ],
+              "weekday": 4
+            },
+            {
+              "times": [
+                {
+                  "start": "T00:15Z"
+                }
+              ],
+              "weekday": 7
+            }
+          ],
+          "boss": "卡莫斯"
+        },
+        {
+          "schedule": [
+            {
+              "times": [
+                {
+                  "start": "T00:15Z"
+                }
+              ],
+              "weekday": 2
+            },
+            {
+              "times": [
+                {
+                  "start": "T23:30Z"
+                }
+              ],
+              "weekday": 6
+            }
+          ],
+          "boss": "肯恩特_木拉卡"
         }
       ]
     }
