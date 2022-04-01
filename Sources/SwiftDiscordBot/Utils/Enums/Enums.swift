@@ -79,4 +79,27 @@ enum Boss: String, Codable {
     case 貝爾
     case 卡莫斯
     case 肯恩特_木拉卡
+    /// 名稱
+    var name: String {
+        return rawValue.replacingOccurrences(of: "_", with: "/")
+    }
+}
+
+enum WeekDay: Int, Codable {
+    /// 星期日
+    case sunday = 1
+    /// 星期一
+    case monday
+    /// 星期二
+    case tuesday
+    /// 星期三
+    case wednesday
+    /// 星期四
+    case thursday
+    /// 星期五
+    case friday
+    /// 星期六
+    case saturday
+    /// 未知
+    case unknown
 }
