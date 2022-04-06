@@ -20,11 +20,10 @@ class Bot: Sword {
     /// 指令
     enum Command: String, CaseIterable {
         case 幫助
-        case 通知開啟
-        case 通知關閉
         case 分流列表
         case 分流
         case 赫敦
+        case 季節
         case 骰子
         case 退坑
         case 測試
@@ -41,16 +40,14 @@ class Bot: Sword {
             switch self {
             case .幫助:
                 return "顯示所有指令"
-            case .通知開啟:
-                return "世界王通知設置開啟 (操作限定)"
-            case .通知關閉:
-                return "世界王通知設置關閉 (操作限定)"
             case .分流列表:
                 return "顯示所有分流"
             case .分流:
                 return "隨機挑選分流 (包含赫敦分流)"
             case .赫敦:
                 return "隨機挑選赫敦分流"
+            case .季節:
+                return "隨機挑選季節分流"
             case .骰子:
                 return "隨機挑選 1-28 的秒數"
             case .退坑:
@@ -100,7 +97,9 @@ class Bot: Sword {
         
         // 讀取世界王排程
         loadData()
+        
         bind()
+        bind(self.viewModel)
         
         App.log("is online and playing \(App.playing).")
     }
@@ -179,53 +178,7 @@ private extension Bot {
                     .map { ":hammer_pick: `\(App.prefixString)\($0)` - `\($0.description)`" }
                 
                 message.reply(with: (commandHelp + commandTest).joined(separator: "\n"))
-            case .通知開啟:
-                let list: [Snowflake] = PermissionList
-                    .allCases
-                    .map { .init(rawValue: $0.rawValue) }
-                
-                // 檢查有沒有在使用名單內
-                guard list.contains(user.id) else { return }
-                
-                let id = UserDefaults.standard.object(forKey: UserDefaultKey.id.rawValue)
-                let lastMessageId = UserDefaults.standard.object(forKey: UserDefaultKey.lastMessageId.rawValue)
-                
-                guard let id64 = id as? UInt64,
-                      let lastMessageId64 = lastMessageId as? UInt64 else {
-                          let id = message.channel.id
-                          
-                          if let lastMessageId = message.channel.lastMessageId {
-                              UserDefaults.standard.set(id.rawValue,
-                                                        forKey: UserDefaultKey.id.rawValue)
-                              UserDefaults.standard.set(lastMessageId.rawValue,
-                                                        forKey: UserDefaultKey.lastMessageId.rawValue)
-                          }
-                          
-                          message.reply(with: ":robot: `[測試] 已開啟通知設置`")
-                          return
-                      }
-                
-                let snowflakeId = Snowflake(rawValue: id64)
-                let snowflakeLastMessageId = Snowflake(rawValue: lastMessageId64)
-                let channel: BossNoticeChannel = .init(lastMessageId: snowflakeLastMessageId,
-                                                       sword: self,
-                                                       id: snowflakeId,
-                                                       type: .guildText)
-                
-                channel.send(":robot: `[測試] 設置正在運作`")
-            case .通知關閉:
-                let list: [Snowflake] = PermissionList
-                    .allCases
-                    .map { .init(rawValue: $0.rawValue) }
-                
-                // 檢查有沒有在使用名單內
-                guard list.contains(user.id) else { return }
-                
-                UserDefaults.standard.set(nil, forKey: UserDefaultKey.id.rawValue)
-                UserDefaults.standard.set(nil, forKey: UserDefaultKey.lastMessageId.rawValue)
-                
-                message.reply(with: ":robot: `[測試] 已清除通知設置`")
-            case .分流, .赫敦:
+            case .分流, .赫敦, .季節:
                 var isHutton: Bool {
                     guard case let command = botCommand, command == .赫敦 else {
                         return false
@@ -234,10 +187,19 @@ private extension Bot {
                     return true
                 }
                 
+                var isSeason: Bool {
+                    guard case let command = botCommand, command == .季節 else {
+                        return false
+                    }
+                    
+                    return true
+                }
+                
                 let probabilityItem: [Probability.ProbabilityItem<ServiceDiversion>] = ServiceDiversion
                     .allCases
+                    .filter { isSeason ? $0.isSeason : true }
                     .filter { isHutton ? $0.isHutton : true }
-                    .map { .init(item: $0, percent: 1) }
+                    .map { .init(item: $0, percent: 10) }
                 
                 guard let random = probability.random(in: probabilityItem) else { return }
                 
@@ -287,6 +249,10 @@ private extension Bot {
         }
     }
     
+    func bind(_ viewModel: BotViewModelPrototype) {
+        //
+    }
+    
     func loadData() {
         guard let data = bossJson else { return }
         
@@ -299,6 +265,15 @@ private extension Bot {
     
     func serviceDiversionNameFormat(_ diversion: ServiceDiversion) -> String {
         var replyMessage = ":map: `" + diversion.nickName + "`"
+        
+        guard !diversion.isSeason else {
+            
+            if diversion.isPvp {
+                replyMessage += " :crossed_swords:"
+            }
+            
+            return replyMessage
+        }
         
         guard diversion.isHutton else {
             return replyMessage
