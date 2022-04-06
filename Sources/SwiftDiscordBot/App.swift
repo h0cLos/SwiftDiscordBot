@@ -10,7 +10,7 @@ struct App {
     static let prefixString = "!"
     static let nickname = environment["NICKNAME"] ?? "debugMode"
     static let playing = "弄壞玩家的飾品"
-    static let bot = Bot(token: discordToken, viewModel: BotViewModel())
+    static let bot = Bot(token: discordToken)
     
     // private
     private static let environment = ProcessInfo.processInfo.environment
