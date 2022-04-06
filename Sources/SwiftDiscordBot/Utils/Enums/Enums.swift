@@ -4,6 +4,17 @@
 
 import Foundation
 
+/// UserDefaults Key 值
+enum UserDefaultKey: String {
+    case id
+    case lastMessageId
+}
+
+/// 指令白名單
+enum PermissionList: UInt64, CaseIterable {
+    case ck = 348320085565243394
+}
+
 /// 分流
 enum ServiceDiversion: String, CaseIterable {
     case 阿勒沙

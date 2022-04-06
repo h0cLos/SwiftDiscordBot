@@ -20,12 +20,14 @@ class Bot: Sword {
     /// 指令
     enum Command: String, CaseIterable {
         case 幫助
-        case 測試
+        case 通知開啟
+        case 通知關閉
         case 分流列表
         case 分流
         case 赫敦
         case 骰子
         case 退坑
+        case 測試
         /// - 世界王測試指令
         case 週日
         case 週一
@@ -39,8 +41,10 @@ class Bot: Sword {
             switch self {
             case .幫助:
                 return "顯示所有指令"
-            case .測試:
-                return "試錯階段指令"
+            case .通知開啟:
+                return "世界王通知設置開啟 (操作限定)"
+            case .通知關閉:
+                return "世界王通知設置關閉 (操作限定)"
             case .分流列表:
                 return "顯示所有分流"
             case .分流:
@@ -51,6 +55,8 @@ class Bot: Sword {
                 return "隨機挑選 1-28 的秒數"
             case .退坑:
                 return "同指令「骰子」"
+            case .測試:
+                return "試錯階段指令"
             case .週日, .週一, .週二, .週三, .週四, .週五, .週六:
                 return "列出當天的世界王與時間（Beta）"
             }
@@ -78,6 +84,13 @@ class Bot: Sword {
     struct BossDaySchedule {
         let boss: Boss?
         let schedule: [ScheduleModel]
+    }
+    
+    struct BossNoticeChannel: TextChannel {
+        let lastMessageId: Snowflake?
+        let sword: Sword?
+        let id: Snowflake
+        let type: ChannelType
     }
     
     init(token: String) {
@@ -161,8 +174,52 @@ private extension Bot {
                     .map { ":hammer_pick: `\(App.prefixString)\($0)` - `\($0.description)`" }
                 
                 message.reply(with: (commandHelp + commandTest).joined(separator: "\n"))
-            case .測試:
-                App.log("\(message)")
+            case .通知開啟:
+                let list: [Snowflake] = PermissionList
+                    .allCases
+                    .map { .init(rawValue: $0.rawValue) }
+                
+                // 檢查有沒有在使用名單內
+                guard list.contains(user.id) else { return }
+                
+                let id = UserDefaults.standard.object(forKey: UserDefaultKey.id.rawValue)
+                let lastMessageId = UserDefaults.standard.object(forKey: UserDefaultKey.lastMessageId.rawValue)
+                
+                guard let id64 = id as? UInt64,
+                      let lastMessageId64 = lastMessageId as? UInt64 else {
+                          let id = message.channel.id
+                          
+                          if let lastMessageId = message.channel.lastMessageId {
+                              UserDefaults.standard.set(id.rawValue,
+                                                        forKey: UserDefaultKey.id.rawValue)
+                              UserDefaults.standard.set(lastMessageId.rawValue,
+                                                        forKey: UserDefaultKey.lastMessageId.rawValue)
+                          }
+                          
+                          message.reply(with: ":robot: `[測試] 已開啟通知設置`")
+                          return
+                      }
+                
+                let snowflakeId = Snowflake(rawValue: id64)
+                let snowflakeLastMessageId = Snowflake(rawValue: lastMessageId64)
+                let channel: BossNoticeChannel = .init(lastMessageId: snowflakeLastMessageId,
+                                                       sword: self,
+                                                       id: snowflakeId,
+                                                       type: .guildText)
+                
+                channel.send(":robot: `[測試] 設置正在運作`")
+            case .通知關閉:
+                let list: [Snowflake] = PermissionList
+                    .allCases
+                    .map { .init(rawValue: $0.rawValue) }
+                
+                // 檢查有沒有在使用名單內
+                guard list.contains(user.id) else { return }
+                
+                UserDefaults.standard.set(nil, forKey: UserDefaultKey.id.rawValue)
+                UserDefaults.standard.set(nil, forKey: UserDefaultKey.lastMessageId.rawValue)
+                
+                message.reply(with: ":robot: `[測試] 已清除通知設置`")
             case .分流, .赫敦:
                 var isHutton: Bool {
                     guard case let command = botCommand, command == .赫敦 else {
@@ -196,6 +253,8 @@ private extension Bot {
                 guard let random = probability.random(in: probabilityItem) else { return }
                 
                 message.reply(with: ":game_die:" + " `" + random.item + "秒`")
+            case .測試:
+                App.log("\(message)")
             case .週日, .週一, .週二, .週三, .週四, .週五, .週六:
                 var weekday: WeekDay {
                     switch botCommand {
