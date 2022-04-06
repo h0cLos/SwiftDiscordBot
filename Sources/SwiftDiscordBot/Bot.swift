@@ -90,24 +90,19 @@ class Bot: Sword {
         let type: ChannelType
     }
     
-    init(token: String, viewModel: BotViewModelPrototype) {
-        self.viewModel = viewModel
-        
+    init(token: String) {
         super.init(token: token)
         
         // 讀取世界王排程
         loadData()
         
         bind()
-        bind(self.viewModel)
         
         App.log("is online and playing \(App.playing).")
     }
 
     /// 世界王日程表 model（未完成）
     private var bossScheduleModel: BossScheduleModel?
-    
-    private let viewModel: BotViewModelPrototype
 }
 
 // 主體
@@ -247,10 +242,6 @@ private extension Bot {
                 message.reply(with: self.weekdayBossSchedule(weekday: weekday).joined(separator: "\n"))
             }
         }
-    }
-    
-    func bind(_ viewModel: BotViewModelPrototype) {
-        //
     }
     
     func loadData() {
