@@ -234,7 +234,7 @@ private extension Bot {
     }
     
     func serviceDiversionNameFormat(_ diversion: ServiceDiversion) -> String {
-        var replyMessage = ":map: `" + diversion.name + "`"
+        var replyMessage = ":map: `" + diversion.nickName + "`"
         
         guard diversion.isHutton else {
             return replyMessage

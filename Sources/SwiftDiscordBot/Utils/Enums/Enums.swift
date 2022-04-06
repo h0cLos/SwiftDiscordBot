@@ -37,6 +37,16 @@ enum ServiceDiversion: String, CaseIterable {
     var name: String {
         return rawValue.replacingOccurrences(of: "_", with: "-")
     }
+    /// 別名
+    var nickName: String {
+        let name = self.name
+        
+        guard case let diversion = self, diversion == .卡爾佩恩_3 else {
+            return name
+        }
+        
+        return name + " (奶綠線)"
+    }
     /// 是否為赫敦分流
     var isHutton: Bool {
         switch self {
