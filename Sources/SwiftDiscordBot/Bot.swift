@@ -93,7 +93,9 @@ class Bot: Sword {
         let type: ChannelType
     }
     
-    init(token: String) {
+    init(token: String, viewModel: BotViewModelPrototype) {
+        self.viewModel = viewModel
+        
         super.init(token: token)
         
         // 讀取世界王排程
@@ -102,8 +104,11 @@ class Bot: Sword {
         
         App.log("is online and playing \(App.playing).")
     }
+
     /// 世界王日程表 model（未完成）
     private var bossScheduleModel: BossScheduleModel?
+    
+    private let viewModel: BotViewModelPrototype
 }
 
 // 主體
