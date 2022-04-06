@@ -4,8 +4,22 @@
 
 import Foundation
 
+/// UserDefaults Key 值
+enum UserDefaultKey: String {
+    case id
+    case lastMessageId
+}
+
+/// 指令白名單
+enum PermissionList: UInt64, CaseIterable {
+    case ck = 348320085565243394
+}
+
 /// 分流
 enum ServiceDiversion: String, CaseIterable {
+    case 季節伺服器_1
+    case 季節伺服器_2
+    case 季節阿勒沙
     case 阿勒沙
     case 梅迪亞_1
     case 梅迪亞_2
@@ -21,9 +35,6 @@ enum ServiceDiversion: String, CaseIterable {
     case 巴雷諾斯_3
     case 璐璐飛_1
     case 璐璐飛_2
-    case 璐璐飛_3
-    case 璐璐飛_4
-    case 璐璐飛_5
     case 瓦倫西亞_1
     case 瓦倫西亞_2
     case 瓦倫西亞_3
@@ -41,11 +52,14 @@ enum ServiceDiversion: String, CaseIterable {
     var nickName: String {
         let name = self.name
         
-        guard case let diversion = self, diversion == .卡爾佩恩_3 else {
+        switch self {
+        case .季節阿勒沙:
+            return name + "(PVP)"
+        case .卡爾佩恩_3:
+            return name + " (奶綠線)"
+        default:
             return name
         }
-        
-        return name + " (奶綠線)"
     }
     /// 是否為赫敦分流
     var isHutton: Bool {
@@ -71,7 +85,16 @@ enum ServiceDiversion: String, CaseIterable {
     /// 是否為 PVP 分流
     var isPvp: Bool {
         switch self {
-        case .阿勒沙:
+        case .阿勒沙, .季節阿勒沙:
+            return true
+        default:
+            return false
+        }
+    }
+    /// 是否為季節分流
+    var isSeason: Bool {
+        switch self {
+        case .季節伺服器_1, .季節伺服器_2, .季節阿勒沙:
             return true
         default:
             return false
