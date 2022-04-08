@@ -9,7 +9,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T11:00Z"
+                  "hour": 11,
+                  "minute": 0
                 }
               ],
               "weekday": 1
@@ -18,13 +19,16 @@ var bossJson: Data? {
               "weekday": 2,
               "times": [
                 {
-                  "start": "T02:00Z"
+                  "hour": 2,
+                  "minute": 0
                 },
                 {
-                  "start": "T15:00Z"
+                  "hour": 15,
+                  "minute": 0
                 },
                 {
-                  "start": "T23:30Z"
+                  "hour": 23,
+                  "minute": 30
                 }
               ]
             },
@@ -32,10 +36,12 @@ var bossJson: Data? {
               "weekday": 3,
               "times": [
                 {
-                  "start": "T11:00Z"
+                  "hour": 11,
+                  "minute": 0
                 },
                 {
-                  "start": "T23:30Z"
+                  "hour": 23,
+                  "minute": 30
                 }
               ]
             },
@@ -43,10 +49,12 @@ var bossJson: Data? {
               "weekday": 4,
               "times": [
                 {
-                  "start": "T11:00Z"
+                  "hour": 11,
+                  "minute": 0
                 },
                 {
-                  "start": "T19:00Z"
+                  "hour": 19,
+                  "minute": 0
                 }
               ]
             },
@@ -54,7 +62,8 @@ var bossJson: Data? {
               "weekday": 5,
               "times": [
                 {
-                  "start": "T15:00Z"
+                  "hour": 15,
+                  "minute": 0
                 }
               ]
             },
@@ -62,10 +71,12 @@ var bossJson: Data? {
               "weekday": 6,
               "times": [
                 {
-                  "start": "T02:00Z"
+                  "hour": 2,
+                  "minute": 0
                 },
                 {
-                  "start": "T19:00Z"
+                  "hour": 19,
+                  "minute": 0
                 }
               ]
             },
@@ -73,10 +84,12 @@ var bossJson: Data? {
               "weekday": 7,
               "times": [
                 {
-                  "start": "T02:00Z"
+                  "hour": 2,
+                  "minute": 0
                 },
                 {
-                  "start": "T19:00Z"
+                  "hour": 19,
+                  "minute": 0
                 }
               ]
             }
@@ -88,7 +101,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T19:00Z"
+                  "hour": 19,
+                  "minute": 0
                 }
               ],
               "weekday": 1
@@ -96,13 +110,16 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T02:00Z"
+                  "hour": 2,
+                  "minute": 0
                 },
                 {
-                  "start": "T15:00Z"
+                  "hour": 15,
+                  "minute": 0
                 },
                 {
-                  "start": "T23:30Z"
+                  "hour": 23,
+                  "minute": 30
                 }
               ],
               "weekday": 2
@@ -110,7 +127,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T11:00Z"
+                  "hour": 11,
+                  "minute": 0
                 }
               ],
               "weekday": 3
@@ -118,7 +136,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T19:00Z"
+                  "hour": 19,
+                  "minute": 0
                 }
               ],
               "weekday": 4
@@ -126,13 +145,16 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T02:00Z"
+                  "hour": 2,
+                  "minute": 0
                 },
                 {
-                  "start": "T11:00Z"
+                  "hour": 11,
+                  "minute": 0
                 },
                 {
-                  "start": "T23:30Z"
+                  "hour": 23,
+                  "minute": 30
                 }
               ],
               "weekday": 5
@@ -140,10 +162,12 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T11:00Z"
+                  "hour": 11,
+                  "minute": 0
                 },
                 {
-                  "start": "T19:00Z"
+                  "hour": 19,
+                  "minute": 0
                 }
               ],
               "weekday": 6
@@ -151,10 +175,12 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T02:00Z"
+                  "hour": 2,
+                  "minute": 0
                 },
                 {
-                  "start": "T11:00Z"
+                  "hour": 11,
+                  "minute": 0
                 }
               ],
               "weekday": 7
@@ -167,10 +193,12 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T02:00Z"
+                  "hour": 2,
+                  "minute": 0
                 },
                 {
-                  "start": "T19:00Z"
+                  "hour": 19,
+                  "minute": 0
                 }
               ],
               "weekday": 1
@@ -178,7 +206,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T11:00Z"
+                  "hour": 11,
+                  "minute": 0
                 }
               ],
               "weekday": 2
@@ -186,7 +215,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T15:00Z"
+                  "hour": 15,
+                  "minute": 0
                 }
               ],
               "weekday": 3
@@ -194,10 +224,12 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T02:00Z"
+                  "hour": 2,
+                  "minute": 0
                 },
                 {
-                  "start": "T23:30Z"
+                  "hour": 23,
+                  "minute": 30
                 }
               ],
               "weekday": 4
@@ -205,10 +237,12 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T11:00Z"
+                  "hour": 11,
+                  "minute": 0
                 },
                 {
-                  "start": "T23:30Z"
+                  "hour": 23,
+                  "minute": 30
                 }
               ],
               "weekday": 5
@@ -216,7 +250,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T15:00Z"
+                  "hour": 15,
+                  "minute": 0
                 }
               ],
               "weekday": 6
@@ -224,7 +259,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T11:00Z"
+                  "hour": 11,
+                  "minute": 0
                 }
               ],
               "weekday": 7
@@ -237,10 +273,12 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T02:00Z"
+                  "hour": 2,
+                  "minute": 0
                 },
                 {
-                  "start": "T11:00Z"
+                  "hour": 11,
+                  "minute": 0
                 }
               ],
               "weekday": 1
@@ -248,13 +286,16 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T02:00Z"
+                  "hour": 2,
+                  "minute": 0
                 },
                 {
-                  "start": "T15:00Z"
+                  "hour": 15,
+                  "minute": 0
                 },
                 {
-                  "start": "T23:30Z"
+                  "hour": 23,
+                  "minute": 30
                 }
               ],
               "weekday": 3
@@ -262,10 +303,12 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T11:00Z"
+                  "hour": 11,
+                  "minute": 0
                 },
                 {
-                  "start": "T23:30Z"
+                  "hour": 23,
+                  "minute": 30
                 }
               ],
               "weekday": 4
@@ -273,10 +316,12 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T15:00Z"
+                  "hour": 15,
+                  "minute": 0
                 },
                 {
-                  "start": "T19:00Z"
+                  "hour": 19,
+                  "minute": 0
                 }
               ],
               "weekday": 5
@@ -284,10 +329,12 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T02:00Z"
+                  "hour": 2,
+                  "minute": 0
                 },
                 {
-                  "start": "T15:00Z"
+                  "hour": 15,
+                  "minute": 0
                 }
               ],
               "weekday": 6
@@ -295,7 +342,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T19:00Z"
+                  "hour": 19,
+                  "minute": 0
                 }
               ],
               "weekday": 7
@@ -308,7 +356,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T23:30Z"
+                  "hour": 23,
+                  "minute": 30
                 }
               ],
               "weekday": 1
@@ -316,7 +365,17 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T15:00Z"
+                  "hour": 11,
+                  "minute": 0
+                }
+              ],
+              "weekday": 6
+            },
+            {
+              "times": [
+                {
+                  "hour": 15,
+                  "minute": 0
                 }
               ],
               "weekday": 7
@@ -329,7 +388,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T15:00Z"
+                  "hour": 15,
+                  "minute": 0
                 }
               ],
               "weekday": 1
@@ -337,7 +397,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T19:00Z"
+                  "hour": 19,
+                  "minute": 0
                 }
               ],
               "weekday": 3
@@ -350,7 +411,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T19:00Z"
+                  "hour": 19,
+                  "minute": 0
                 }
               ],
               "weekday": 2
@@ -358,7 +420,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T15:00Z"
+                  "hour": 15,
+                  "minute": 0
                 }
               ],
               "weekday": 4
@@ -366,7 +429,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T00:15Z"
+                  "hour": 0,
+                  "minute": 15
                 }
               ],
               "weekday": 7
@@ -379,7 +443,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T00:15Z"
+                  "hour": 0,
+                  "minute": 15
                 }
               ],
               "weekday": 2
@@ -387,7 +452,8 @@ var bossJson: Data? {
             {
               "times": [
                 {
-                  "start": "T23:30Z"
+                  "hour": 23,
+                  "minute": 30
                 }
               ],
               "weekday": 6
