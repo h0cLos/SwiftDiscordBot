@@ -26,15 +26,8 @@ class Bot: Sword {
         case 季節
         case 骰子
         case 退坑
+        case 世界王
         case 測試
-        /// - 世界王測試指令
-        case 週日
-        case 週一
-        case 週二
-        case 週三
-        case 週四
-        case 週五
-        case 週六
         /// 描述
         var description: String {
             switch self {
@@ -52,10 +45,10 @@ class Bot: Sword {
                 return "隨機挑選 1-28 的秒數"
             case .退坑:
                 return "同指令「骰子」"
+            case .世界王:
+                return "顯示離此刻時間最接近的世界王"
             case .測試:
                 return "試錯階段指令"
-            case .週日, .週一, .週二, .週三, .週四, .週五, .週六:
-                return "列出當天的世界王與時間（Beta）"
             }
         }
         /// 是否顯示
@@ -70,7 +63,7 @@ class Bot: Sword {
         /// 是否為測試
         var test: Bool {
             switch self {
-            case .測試, .週日, .週一, .週二, .週三, .週四, .週五, .週六:
+            case .測試, .世界王:
                 return true
             default:
                 return false
@@ -83,11 +76,14 @@ class Bot: Sword {
         let schedule: [ScheduleModel]
     }
     
-    struct BossNoticeChannel: TextChannel {
-        let lastMessageId: Snowflake?
-        let sword: Sword?
-        let id: Snowflake
-        let type: ChannelType
+    struct BossSordDaySchedule {
+        let boss: Boss?
+        let schedule: [ScheduleTimesModel]
+    }
+    
+    struct BossTimeSchedule {
+        let boss: [Boss]
+        let times: Date
     }
     
     init(token: String) {
@@ -215,31 +211,75 @@ private extension Bot {
                 guard let random = probability.random(in: probabilityItem) else { return }
                 
                 message.reply(with: ":game_die:" + " `" + random.item + "秒`")
-            case .測試:
-                App.log("\(message)")
-            case .週日, .週一, .週二, .週三, .週四, .週五, .週六:
-                var weekday: WeekDay {
-                    switch botCommand {
-                    case .週日:
-                        return .sunday
-                    case .週一:
-                        return .monday
-                    case .週二:
-                        return .tuesday
-                    case .週三:
-                        return .wednesday
-                    case .週四:
-                        return .thursday
-                    case .週五:
-                        return .friday
-                    case .週六:
-                        return .saturday
-                    default:
-                        return .unknown
-                    }
+            case .世界王:
+                guard let timezone = TimeZone(secondsFromGMT: 8 * 60 * 60) else { return }
+                
+                var calendar = Calendar.current
+                calendar.timeZone = timezone
+                
+                let formatter = DateFormatter() --> {
+                    $0.dateFormat = "'T'hh:mm'Z'"
                 }
                 
-                message.reply(with: self.weekdayBossSchedule(weekday: weekday).joined(separator: "\n"))
+                let nowDate = Date()
+                let weekday = calendar.component(.weekday, from: nowDate)
+                let hourAndMinute = calendar.dateComponents([.hour, .minute], from: nowDate)
+                let nowDateString = String(format: "T%02d:%02dZ", hourAndMinute.hour ?? 0, hourAndMinute.minute ?? 0)
+                
+                guard let model = self.bossScheduleModel,
+                      let weekday = WeekDay(rawValue: weekday) else { return }
+                
+                // 列出今日的世界王
+                let todaySchedule: [BossDaySchedule] = model
+                    .boss
+                    .map {
+                        let schedule = $0
+                            .schedule
+                            .filter {
+                                ($0.weekday ?? .unknown) == weekday
+                            }
+                        
+                        return .init(boss: $0.boss,
+                                     schedule: schedule)
+                    }
+                    .filter { !$0.schedule.isEmpty }
+                
+                // 整理今日的世界王的出席時間
+                let sordBoss: [BossTimeSchedule] = todaySchedule
+                    .map { $0.schedule }
+                    .flatMap { $0 }
+                    .map { $0.times }
+                    .flatMap { $0 }
+                    .map { $0.start }
+                    .unique()
+                    .map {
+                        let start = $0
+                        let sordBoss: [BossSordDaySchedule] = todaySchedule
+                            .map {
+                                let dayTimeSchedule = $0.schedule
+                                    .map {
+                                        $0.times
+                                            .filter {
+                                                $0.start == start
+                                            }
+                                    }
+                                    .flatMap { $0 }
+                                
+                                return .init(boss: $0.boss,
+                                             schedule: dayTimeSchedule)
+                            }
+                            .filter { !$0.schedule.isEmpty }
+                        
+                        return .init(boss: sordBoss.map { $0.boss! } ,
+                                     times: formatter.date(from: $0!)!)
+                    }
+                    .sorted { $0.times < $1.times }
+                
+                dump(sordBoss)
+                
+                
+            case .測試:
+                App.log("\(message)")
             }
         }
     }
