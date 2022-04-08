@@ -118,7 +118,7 @@ enum Boss: String, Codable {
     }
 }
 
-enum WeekDay: Int, Codable {
+enum WeekDay: Int, Codable, CaseIterable {
     /// 星期日
     case sunday = 1
     /// 星期一
