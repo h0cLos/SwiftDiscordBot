@@ -11,19 +11,19 @@ struct BossScheduleModel: Codable {
 
 struct BossModel: Codable {
     /// 世界王名稱
-    let boss: Boss?
+    let boss: Boss
     /// 世界王出現排程
     let schedule: [ScheduleModel]
 }
 
 struct ScheduleModel: Codable {
     /// 每週會出現的時間
-    let weekday: WeekDay?
+    let weekday: WeekDay
     /// 當天會出現的時間
     let times: [ScheduleTimesModel]
 }
 
 struct ScheduleTimesModel: Codable {
     /// 開始時間
-    let start: String?
+    let start: String
 }

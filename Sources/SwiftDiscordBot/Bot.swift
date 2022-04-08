@@ -46,7 +46,7 @@ class Bot: Sword {
             case .退坑:
                 return "同指令「骰子」"
             case .世界王:
-                return "顯示離此刻時間最接近的世界王"
+                return "告知最接近當前時間的世界王 (Beta)"
             case .測試:
                 return "試錯階段指令"
             }
@@ -72,12 +72,12 @@ class Bot: Sword {
     }
     
     struct BossDaySchedule {
-        let boss: Boss?
+        let boss: Boss
         let schedule: [ScheduleModel]
     }
     
     struct BossSordDaySchedule {
-        let boss: Boss?
+        let boss: Boss
         let schedule: [ScheduleTimesModel]
     }
     
@@ -97,8 +97,12 @@ class Bot: Sword {
         App.log("is online and playing \(App.playing).")
     }
 
-    /// 世界王日程表 model（未完成）
+    /// 世界王日程表 model
     private var bossScheduleModel: BossScheduleModel?
+    
+    private let dateFormatter = DateFormatter() --> {
+        $0.dateFormat = "'T'hh:mm'Z'"
+    }
 }
 
 // 主體
@@ -212,72 +216,57 @@ private extension Bot {
                 
                 message.reply(with: ":game_die:" + " `" + random.item + "秒`")
             case .世界王:
+                func closestBoss(weekday: WeekDay, nowDate: Date) -> BossTimeSchedule? {
+                    let closestBossSchedule = self.weekdayBossSchedule(weekday: weekday)
+                        .filter { $0.times > nowDate }
+                    
+                    guard closestBossSchedule.isEmpty else {
+                        return closestBossSchedule.first
+                    }
+                    
+                    // 今日世界王已經出完，需獲取隔一日的列表
+                    let maxWeekdayRawValue = WeekDay
+                        .allCases
+                        .filter { $0 != .unknown }
+                        .map { $0.rawValue }
+                        .sorted { $0 > $1 }
+                        .first ?? WeekDay.unknown.rawValue
+                    
+                    var newWeekday: WeekDay {
+                        let newRawValue = weekday.rawValue + 1
+                        
+                        guard newRawValue > maxWeekdayRawValue else {
+                            return WeekDay(rawValue: newRawValue) ?? .unknown
+                        }
+                        
+                        return .sunday
+                    }
+                    
+                    return self.weekdayBossSchedule(weekday: newWeekday).first
+                }
+                
                 guard let timezone = TimeZone(secondsFromGMT: 8 * 60 * 60) else { return }
                 
                 var calendar = Calendar.current
                 calendar.timeZone = timezone
-                
-                let formatter = DateFormatter() --> {
-                    $0.dateFormat = "'T'hh:mm'Z'"
-                }
                 
                 let nowDate = Date()
                 let weekday = calendar.component(.weekday, from: nowDate)
                 let hourAndMinute = calendar.dateComponents([.hour, .minute], from: nowDate)
                 let nowDateString = String(format: "T%02d:%02dZ", hourAndMinute.hour ?? 0, hourAndMinute.minute ?? 0)
                 
-                guard let model = self.bossScheduleModel,
-                      let weekday = WeekDay(rawValue: weekday) else { return }
+                guard let weekday = WeekDay(rawValue: weekday),
+                      let date = self.dateFormatter.date(from: nowDateString),
+                      let bossSchedule = closestBoss(weekday: weekday, nowDate: date) else { return }
                 
-                // 列出今日的世界王
-                let todaySchedule: [BossDaySchedule] = model
+                let bossHourAndMinute = calendar.dateComponents([.hour, .minute], from: bossSchedule.times)
+                let bossTime = String(format: "%02d:%02d", bossHourAndMinute.hour!, bossHourAndMinute.minute!)
+                let boss = bossSchedule
                     .boss
-                    .map {
-                        let schedule = $0
-                            .schedule
-                            .filter {
-                                ($0.weekday ?? .unknown) == weekday
-                            }
-                        
-                        return .init(boss: $0.boss,
-                                     schedule: schedule)
-                    }
-                    .filter { !$0.schedule.isEmpty }
+                    .map { "`\($0.name)`" }
+                    .joined(separator: "、")
                 
-                // 整理今日的世界王的出席時間
-                let sordBoss: [BossTimeSchedule] = todaySchedule
-                    .map { $0.schedule }
-                    .flatMap { $0 }
-                    .map { $0.times }
-                    .flatMap { $0 }
-                    .map { $0.start }
-                    .unique()
-                    .map {
-                        let start = $0
-                        let sordBoss: [BossSordDaySchedule] = todaySchedule
-                            .map {
-                                let dayTimeSchedule = $0.schedule
-                                    .map {
-                                        $0.times
-                                            .filter {
-                                                $0.start == start
-                                            }
-                                    }
-                                    .flatMap { $0 }
-                                
-                                return .init(boss: $0.boss,
-                                             schedule: dayTimeSchedule)
-                            }
-                            .filter { !$0.schedule.isEmpty }
-                        
-                        return .init(boss: sordBoss.map { $0.boss! } ,
-                                     times: formatter.date(from: $0!)!)
-                    }
-                    .sorted { $0.times < $1.times }
-                
-                dump(sordBoss)
-                
-                
+                message.reply(with: ":stopwatch:" + " 下一隻世界王為 " + "`\(bossTime)`" + " \(boss)")
             case .測試:
                 App.log("\(message)")
             }
@@ -319,34 +308,51 @@ private extension Bot {
         return replyMessage
     }
     
-    func weekdayBossSchedule(weekday: WeekDay) -> [String] {
+    func weekdayBossSchedule(weekday: WeekDay) -> [BossTimeSchedule] {
         guard let model = bossScheduleModel else { return [] }
         
+        // 列出今日的世界王
         let todaySchedule: [BossDaySchedule] = model
             .boss
             .map {
                 let schedule = $0
                     .schedule
-                    .filter {
-                        ($0.weekday ?? .unknown) == weekday
-                    }
+                    .filter { $0.weekday == weekday }
                 
                 return .init(boss: $0.boss,
                              schedule: schedule)
             }
             .filter { !$0.schedule.isEmpty }
         
-        return todaySchedule
+        // 整理今日的世界王的出席時間
+        let sordBoss: [BossTimeSchedule] = todaySchedule
+            .map { $0.schedule }
+            .flatMap { $0 }
+            .map { $0.times }
+            .flatMap { $0 }
+            .map { $0.start }
+            .unique()
             .map {
-                guard let boss = $0.boss else { return .init() }
+                let start = $0
+                let sordBoss: [BossSordDaySchedule] = todaySchedule
+                    .map {
+                        let dayTimeSchedule = $0.schedule
+                            .map {
+                                $0.times
+                                    .filter { $0.start == start }
+                            }
+                            .flatMap { $0 }
+                        
+                        return .init(boss: $0.boss,
+                                     schedule: dayTimeSchedule)
+                    }
+                    .filter { !$0.schedule.isEmpty }
                 
-                let times = $0
-                    .schedule
-                    .map { $0.times }
-                    .flatMap { $0 }
-                    .map { "`\($0.start ?? .init())`" }
-                
-                return ":stopwatch: `\(boss.name)` - \(times.joined(separator: "、"))"
+                return .init(boss: sordBoss.map(\.boss),
+                             times: dateFormatter.date(from: $0)!)
             }
+            .sorted { $0.times < $1.times }
+        
+        return sordBoss
     }
 }
