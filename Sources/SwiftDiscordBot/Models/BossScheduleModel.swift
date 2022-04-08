@@ -25,5 +25,6 @@ struct ScheduleModel: Codable {
 
 struct ScheduleTimesModel: Codable {
     /// 開始時間
-    let start: String
+    let hour: Int
+    let minute: Int
 }
