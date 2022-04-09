@@ -264,7 +264,7 @@ private extension Bot {
                     .map { "`\($0.name)`" }
                     .joined(separator: "、")
 
-                message.reply(with: ":stopwatch:" + " 下一隻世界王為 " + "`\(bossTime)`" + " \(boss)")
+                message.reply(with: ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " \(boss)")
             case .測試:
                 App.log("\(message)")
             }
