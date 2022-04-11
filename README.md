@@ -5,7 +5,7 @@
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 ```terminal.sh-session
-git clone https://github.com/h0cLos/SwiftDiscordBot.git
+git clone https://github.com/hoclos/SwiftDiscordBot.git
 cd SwiftCompilerDiscordappBot
 heroku container:login
 heroku create
