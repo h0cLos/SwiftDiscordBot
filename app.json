@@ -6,7 +6,7 @@
     "discord",
     "bot"
   ],
-  "repository": "https://github.com/h0cLos/SwiftCompilerDiscordappBot",
+  "repository": "https://github.com/hoclos/SwiftDiscordBot",
   "stack": "container",
   "env": {
     "DISCORD_TOKEN": {

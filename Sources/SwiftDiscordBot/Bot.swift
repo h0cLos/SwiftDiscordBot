@@ -27,6 +27,7 @@ class Bot: Sword {
         case 骰子
         case 退坑
         case 世界王
+        case 世界王檢查
         case 測試
         /// 描述
         var description: String {
@@ -46,7 +47,9 @@ class Bot: Sword {
             case .退坑:
                 return "同指令「骰子」"
             case .世界王:
-                return "告知最接近當前時間的世界王 (Beta)"
+                return "告知最接近當前時間的世界王"
+            case .世界王檢查:
+                return "由觸發機器人觸發的檢查指令"
             case .測試:
                 return "試錯階段指令"
             }
@@ -54,7 +57,7 @@ class Bot: Sword {
         /// 是否顯示
         var present: Bool {
             switch self {
-            case .幫助, .測試:
+            case .幫助, .測試, .世界王檢查:
                 return false
             default:
                 return true
@@ -63,7 +66,7 @@ class Bot: Sword {
         /// 是否為測試
         var test: Bool {
             switch self {
-            case .測試, .世界王:
+            case .測試:
                 return true
             default:
                 return false
@@ -84,6 +87,13 @@ class Bot: Sword {
     struct BossTimeSchedule {
         let boss: [Boss]
         let times: Int
+    }
+    
+    struct BossNoticeChannel: TextChannel {
+        let lastMessageId: Snowflake?
+        let sword: Sword?
+        let id: Snowflake
+        let type: ChannelType
     }
     
     init(token: String) {
@@ -144,13 +154,7 @@ private extension Bot {
                   let user = message.author,
                   let userName = user.username else { return }
             
-            let isBot = user.isBot ?? false
-            
-            guard !isBot else { return }
-            
             let content = message.content
-            
-            App.log("收到新訊息:「\(content)」來自「\(userName) (\(user.id))」於「\(message.timestamp)」。")
             
             guard content.hasPrefix(App.prefixString) else { return }
             
@@ -215,7 +219,7 @@ private extension Bot {
                 guard let random = probability.random(in: probabilityItem) else { return }
                 
                 message.reply(with: ":game_die:" + " `" + random.item + "秒`")
-            case .世界王:
+            case .世界王, .世界王檢查:
                 func closestBoss(weekday: WeekDay, nowSecond: Int) -> BossTimeSchedule? {
                     let closestBossSchedule = self.weekdayBossSchedule(weekday: weekday)
                         .filter { $0.times > nowSecond }
@@ -263,9 +267,38 @@ private extension Bot {
                     .boss
                     .map { "`\($0.name)`" }
                     .joined(separator: "、")
-
-                message.reply(with: ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " \(boss)")
-            case .測試:
+                
+                var isCheck: Bool {
+                    guard case let command = botCommand, command == .世界王檢查 else {
+                        return false
+                    }
+                    
+                    return true
+                }
+                
+                if isCheck {
+                    let bossNoticeContent = ":alarm_clock:" + " 世界王提醒 " + "`\(bossTime)`" + " \(boss)"
+                    let textChannel: BossNoticeChannel = .init(lastMessageId: nil,
+                                                               sword: self,
+                                                               id: BossNoticeList.textChannel.id,
+                                                               type: .guildText)
+                    
+                    let isBot = user.isBot ?? false
+                    
+                    if !isBot {
+                        textChannel.send(bossNoticeContent + " (手動觸發)")
+                    }
+                    
+                    guard 120...150 ~= bossSchedule.times - nowSecond else {
+                        return
+                    }
+                    
+                    textChannel.send(bossNoticeContent)
+                } else {
+                    message.reply(with: ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " \(boss)")
+                }
+           case .測試:
+                App.log("\(message.channel.id)")
                 App.log("\(message)")
             }
         }

@@ -6,7 +6,7 @@
 
 ```terminal.sh-session
 git clone https://github.com/hoclos/SwiftDiscordBot.git
-cd SwiftCompilerDiscordappBot
+cd SwiftDiscordBot
 heroku container:login
 heroku create
 heroku config:set DISCORD_TOKEN="<discord token here>"
