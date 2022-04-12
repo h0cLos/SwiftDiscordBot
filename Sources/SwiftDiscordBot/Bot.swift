@@ -277,6 +277,7 @@ private extension Bot {
                 }
                 
                 if isCheck {
+                    let bossNoticeContent = ":alarm_clock:" + " 世界王提醒 " + "`\(bossTime)`" + " \(boss)"
                     let textChannel: BossNoticeChannel = .init(lastMessageId: nil,
                                                                sword: self,
                                                                id: BossNoticeList.textChannel.id,
@@ -285,14 +286,14 @@ private extension Bot {
                     let isBot = user.isBot ?? false
                     
                     if !isBot {
-                        textChannel.send(":alarm_clock:" + " 世界王提醒 " + "`\(bossTime)`" + " \(boss)" + " (手動觸發)")
+                        textChannel.send(bossNoticeContent + " (手動觸發)")
                     }
                     
                     guard 120...150 ~= bossSchedule.times - nowSecond else {
                         return
                     }
                     
-                    textChannel.send(":alarm_clock:" + " 世界王提醒 " + "`\(bossTime)`" + " \(boss)")
+                    textChannel.send(bossNoticeContent)
                 } else {
                     message.reply(with: ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " \(boss)")
                 }
