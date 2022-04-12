@@ -3,6 +3,7 @@
 //
 
 import Foundation
+import Sword
 
 /// UserDefaults Key 值
 enum UserDefaultKey: String {
@@ -13,6 +14,16 @@ enum UserDefaultKey: String {
 /// 指令白名單
 enum PermissionList: UInt64, CaseIterable {
     case ck = 348320085565243394
+}
+
+/// 世界王通知推送頻道
+enum BossNoticeList: UInt64 {
+    case testChannel = 937307583537102940
+    
+    /// id
+    var id: Snowflake {
+        return .init(rawValue: rawValue)
+    }
 }
 
 /// 分流
