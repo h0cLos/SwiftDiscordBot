@@ -279,8 +279,14 @@ private extension Bot {
                 if isCheck {
                     let textChannel: BossNoticeChannel = .init(lastMessageId: nil,
                                                                sword: self,
-                                                               id: BossNoticeList.testChannel.id,
+                                                               id: BossNoticeList.textChannel.id,
                                                                type: .guildText)
+                    
+                    let isBot = user.isBot ?? false
+                    
+                    if !isBot {
+                        textChannel.send(":alarm_clock:" + " 世界王提醒 " + "`\(bossTime)`" + " \(boss)" + " (手動觸發)")
+                    }
                     
                     guard 120...150 ~= bossSchedule.times - nowSecond else {
                         return

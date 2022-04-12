@@ -19,6 +19,7 @@ enum PermissionList: UInt64, CaseIterable {
 /// 世界王通知推送頻道
 enum BossNoticeList: UInt64 {
     case testChannel = 937307583537102940
+    case textChannel = 960960062724137040
     
     /// id
     var id: Snowflake {
