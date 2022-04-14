@@ -28,6 +28,7 @@ class Bot: Sword {
         case 退坑
         case 世界王
         case 世界王檢查
+        case 序號
         case 測試
         /// 描述
         var description: String {
@@ -50,6 +51,8 @@ class Bot: Sword {
                 return "告知最接近當前時間的世界王"
             case .世界王檢查:
                 return "由觸發機器人觸發的檢查指令"
+            case .序號:
+                return "快速建立序號；範例: \(App.prefixString)序號 -c:截止日期,序號,物品#1:數量,物品#2:數量"
             case .測試:
                 return "試錯階段指令"
             }
@@ -106,7 +109,7 @@ class Bot: Sword {
         
         App.log("is online and playing \(App.playing).")
     }
-
+    
     /// 世界王日程表 model
     private var bossScheduleModel: BossScheduleModel?
     
@@ -158,9 +161,14 @@ private extension Bot {
             
             guard content.hasPrefix(App.prefixString) else { return }
             
-            let command = content.replacingOccurrences(of: App.prefixString, with: "")
+            let commandBody = content
+              .replacingOccurrences(of: App.prefixString, with: "")
+              .components(separatedBy: " -c:")
             
-            guard let botCommand = Command(rawValue: command) else { return }
+            guard 0...2 ~= commandBody.count,
+                  let command = commandBody.first,
+                  let commandContent = commandBody.last,
+                  let botCommand = Command(rawValue: command) else { return }
             
             switch botCommand {
             case .幫助:
@@ -227,7 +235,7 @@ private extension Bot {
                     guard closestBossSchedule.isEmpty else {
                         return closestBossSchedule.first
                     }
-
+                    
                     // 今日世界王已經出完，獲取隔一日的列表
                     let maxWeekdayRawValue = WeekDay
                         .allCases
@@ -235,17 +243,17 @@ private extension Bot {
                         .map { $0.rawValue }
                         .sorted { $0 > $1 }
                         .first ?? WeekDay.unknown.rawValue
-
+                    
                     var newWeekday: WeekDay {
                         let newRawValue = weekday.rawValue + 1
-
+                        
                         guard newRawValue > maxWeekdayRawValue else {
                             return WeekDay(rawValue: newRawValue) ?? .unknown
                         }
-
+                        
                         return .sunday
                     }
-
+                    
                     return self.weekdayBossSchedule(weekday: newWeekday).first
                 }
                 
@@ -297,7 +305,46 @@ private extension Bot {
                 } else {
                     message.reply(with: ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " \(boss)")
                 }
-           case .測試:
+            case .序號:
+                let contentArrays = commandContent.components(separatedBy: ",")
+                
+                guard contentArrays.count > 2 else {
+                    
+                    message.reply(with: ":mag_right:" + " content 內容有誤，請再次確認")
+                    
+                    return
+                }
+                
+                let messageContent = contentArrays
+                    .enumerated()
+                    .map {
+                        switch $0.offset {
+                        case 0:
+                            return "- \($0.element)"
+                        case 1:
+                            return "+ \($0.element)"
+                        default:
+                            let itemContent = $0.element
+                            
+                            var item: String {
+                                let itemArrays = itemContent.components(separatedBy: ":")
+                                
+                                guard itemArrays.count > 1,
+                                      let itemName = itemArrays.first,
+                                      let count = itemArrays.last else { return "" }
+                                
+                                guard count != "1" else { return itemName }
+                                
+                                return "\(itemName) *\(count)"
+                            }
+                            
+                            return "└⎯⎯ \(item)"
+                        }
+                    }
+                    .joined(separator: "\n")
+                
+                message.reply(with: ":keyboard:" + " 序號內容：\n" + "```\ndiff\n\(messageContent)```")
+            case .測試:
                 App.log("\(message.channel.id)")
                 App.log("\(message)")
             }
@@ -375,12 +422,12 @@ private extension Bot {
                                     .filter { $0.hour * 60 * 60 + $0.minute * 60 == second }
                             }
                             .flatMap { $0 }
-
+                        
                         return .init(boss: $0.boss,
                                      schedule: dayTimeSchedule)
                     }
                     .filter { !$0.schedule.isEmpty }
-
+                
                 return .init(boss: sordBoss.map { $0.boss },
                              times: $0)
             }
