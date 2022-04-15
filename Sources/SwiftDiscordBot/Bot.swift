@@ -153,17 +153,15 @@ private extension Bot {
             let probability = Probability()
             
             guard let self = self,
-                  let message = $0 as? Message,
-                  let user = message.author,
-                  let userName = user.username else { return }
+                  let message = $0 as? Message else { return }
             
             let content = message.content
             
             guard content.hasPrefix(App.prefixString) else { return }
             
             let commandBody = content
-              .replacingOccurrences(of: App.prefixString, with: "")
-              .components(separatedBy: " -c:")
+                .replacingOccurrences(of: App.prefixString, with: "")
+                .components(separatedBy: " -c:")
             
             guard 0...2 ~= commandBody.count,
                   let command = commandBody.first,
@@ -290,12 +288,6 @@ private extension Bot {
                                                                sword: self,
                                                                id: BossNoticeList.textChannel.id,
                                                                type: .guildText)
-                    
-                    let isBot = user.isBot ?? false
-                    
-                    if !isBot {
-                        textChannel.send(bossNoticeContent + " (手動觸發)")
-                    }
                     
                     guard 120...150 ~= bossSchedule.times - nowSecond else {
                         return
