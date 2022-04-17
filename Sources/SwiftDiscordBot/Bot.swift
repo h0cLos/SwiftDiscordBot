@@ -20,6 +20,7 @@ class Bot: Sword {
     /// 指令
     enum Command: String, CaseIterable {
         case 幫助
+        case 序號
         case 分流列表
         case 分流
         case 赫敦
@@ -28,13 +29,15 @@ class Bot: Sword {
         case 退坑
         case 世界王
         case 世界王檢查
-        case 序號
+        case 運勢
         case 測試
         /// 描述
         var description: String {
             switch self {
             case .幫助:
                 return "顯示所有指令"
+            case .序號:
+                return "快速建立序號；範例: \(App.prefixString)序號 -c:截止日期,序號,物品#1:數量,物品#2:數量"
             case .分流列表:
                 return "顯示所有分流"
             case .分流:
@@ -51,8 +54,8 @@ class Bot: Sword {
                 return "告知最接近當前時間的世界王"
             case .世界王檢查:
                 return "由觸發機器人觸發的檢查指令"
-            case .序號:
-                return "快速建立序號；範例: \(App.prefixString)序號 -c:截止日期,序號,物品#1:數量,物品#2:數量"
+            case .運勢:
+                return "由機器人不負責任的鐵口直斷"
             case .測試:
                 return "試錯階段指令"
             }
@@ -183,6 +186,45 @@ private extension Bot {
                     .map { ":hammer_pick: `\(App.prefixString)\($0)` - `\($0.description)`" }
                 
                 message.reply(with: (commandHelp + commandTest).joined(separator: "\n"))
+            case .序號:
+                let contentArrays = commandContent.components(separatedBy: ",")
+                
+                guard contentArrays.count > 2 else {
+                    
+                    message.reply(with: ":mag_right:" + " content 內容有誤，請再次確認")
+                    
+                    return
+                }
+                
+                let messageContent = contentArrays
+                    .enumerated()
+                    .map {
+                        switch $0.offset {
+                        case 0:
+                            return "- \($0.element)"
+                        case 1:
+                            return "+ \($0.element)"
+                        default:
+                            let itemContent = $0.element
+                            
+                            var item: String {
+                                let itemArrays = itemContent.components(separatedBy: ":")
+                                
+                                guard itemArrays.count > 1,
+                                      let itemName = itemArrays.first,
+                                      let count = itemArrays.last else { return "" }
+                                
+                                guard count != "1" else { return itemName }
+                                
+                                return "\(itemName) *\(count)"
+                            }
+                            
+                            return "└⎯⎯ \(item)"
+                        }
+                    }
+                    .joined(separator: "\n")
+                
+                message.reply(with: ":keyboard:" + " 序號內容：\n" + "```\ndiff\n\(messageContent)```")
             case .分流, .赫敦, .季節:
                 var isHutton: Bool {
                     guard case let command = botCommand, command == .赫敦 else {
@@ -297,45 +339,25 @@ private extension Bot {
                 } else {
                     message.reply(with: ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " \(boss)")
                 }
-            case .序號:
-                let contentArrays = commandContent.components(separatedBy: ",")
+            case .運勢:
+                let probabilityItem: [Probability.ProbabilityItem<Omikuji>] = Omikuji
+                    .allCases
+                    .map { .init(item: $0, percent: $0.percent) }
                 
-                guard contentArrays.count > 2 else {
-                    
-                    message.reply(with: ":mag_right:" + " content 內容有誤，請再次確認")
-                    
-                    return
+                guard let random = probability.random(in: probabilityItem) else { return }
+                
+                var emoji: String {
+                    switch random.item {
+                    case .大吉:
+                        return ":chart_with_upwards_trend:"
+                    case .大凶:
+                        return ":chart_with_downwards_trend:"
+                    default:
+                        return ":crystal_ball:"
+                    }
                 }
                 
-                let messageContent = contentArrays
-                    .enumerated()
-                    .map {
-                        switch $0.offset {
-                        case 0:
-                            return "- \($0.element)"
-                        case 1:
-                            return "+ \($0.element)"
-                        default:
-                            let itemContent = $0.element
-                            
-                            var item: String {
-                                let itemArrays = itemContent.components(separatedBy: ":")
-                                
-                                guard itemArrays.count > 1,
-                                      let itemName = itemArrays.first,
-                                      let count = itemArrays.last else { return "" }
-                                
-                                guard count != "1" else { return itemName }
-                                
-                                return "\(itemName) *\(count)"
-                            }
-                            
-                            return "└⎯⎯ \(item)"
-                        }
-                    }
-                    .joined(separator: "\n")
-                
-                message.reply(with: ":keyboard:" + " 序號內容：\n" + "```\ndiff\n\(messageContent)```")
+                message.reply(with: emoji + " 當前運勢" + " `" + random.item.rawValue + "`")
             case .測試:
                 App.log("\(message.channel.id)")
                 App.log("\(message)")
