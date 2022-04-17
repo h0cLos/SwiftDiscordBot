@@ -148,3 +148,45 @@ enum WeekDay: Int, Codable, CaseIterable {
     /// 未知
     case unknown
 }
+
+enum Omikuji: String, CaseIterable {
+    case 大吉
+    case 中吉
+    case 小吉
+    case 吉
+    case 半吉
+    case 末吉
+    case 末小吉
+    case 凶
+    case 小凶
+    case 半凶
+    case 末凶
+    case 大凶
+    /// 機率
+    var percent: Int {
+        switch self {
+        case .大吉:
+            return 9
+        default:
+            return 10
+        }
+    }
+    /// 是否為最好
+    var isBetter: Bool {
+        switch self {
+        case .大吉:
+            return true
+        default:
+            return false
+        }
+    }
+    /// 是否為最差
+    var isBad: Bool {
+        switch self {
+        case .大凶:
+            return true
+        default:
+            return false
+        }
+    }
+}
