@@ -5,12 +5,6 @@
 import Foundation
 import Sword
 
-/// UserDefaults Key 值
-enum UserDefaultKey: String {
-    case id
-    case lastMessageId
-}
-
 /// 指令白名單
 enum PermissionList: UInt64, CaseIterable {
     case ck = 348320085565243394
@@ -20,7 +14,6 @@ enum PermissionList: UInt64, CaseIterable {
 enum BossNoticeList: UInt64 {
     case testChannel = 937307583537102940
     case textChannel = 960960062724137040
-    
     /// id
     var id: Snowflake {
         return .init(rawValue: rawValue)
@@ -130,6 +123,7 @@ enum Boss: String, Codable {
     }
 }
 
+/// 星期
 enum WeekDay: Int, Codable, CaseIterable {
     /// 星期日
     case sunday = 1
@@ -149,6 +143,7 @@ enum WeekDay: Int, Codable, CaseIterable {
     case unknown
 }
 
+/// 運勢
 enum Omikuji: String, CaseIterable {
     case 大吉
     case 中吉
@@ -165,28 +160,10 @@ enum Omikuji: String, CaseIterable {
     /// 機率
     var percent: Int {
         switch self {
-        case .大吉:
-            return 9
+        case .大吉, .大凶:
+            return 8
         default:
             return 10
-        }
-    }
-    /// 是否為最好
-    var isBetter: Bool {
-        switch self {
-        case .大吉:
-            return true
-        default:
-            return false
-        }
-    }
-    /// 是否為最差
-    var isBad: Bool {
-        switch self {
-        case .大凶:
-            return true
-        default:
-            return false
         }
     }
 }

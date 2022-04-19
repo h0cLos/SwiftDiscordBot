@@ -79,22 +79,28 @@ class Bot: Sword {
             }
         }
     }
-    
+    /// 訊息快取
+    struct CacheMessage {
+        let id: UInt64
+        let sendMessage: String
+        let commandMessage: Message
+    }
+    /// 世界王日行程
     struct BossDaySchedule {
         let boss: Boss
         let schedule: [ScheduleModel]
     }
-    
+    /// 世界王日行程 (梳理)
     struct BossSordDaySchedule {
         let boss: Boss
         let schedule: [ScheduleTimesModel]
     }
-    
+    /// 世界王當日時間行程
     struct BossTimeSchedule {
         let boss: [Boss]
         let times: Int
     }
-    
+    /// 世界王通知頻道
     struct BossNoticeChannel: TextChannel {
         let lastMessageId: Snowflake?
         let sword: Sword?
@@ -115,10 +121,8 @@ class Bot: Sword {
     
     /// 世界王日程表 model
     private var bossScheduleModel: BossScheduleModel?
-    
-    private let dateFormatter = DateFormatter() --> {
-        $0.dateFormat = "'T'hh:mm'Z'"
-    }
+    /// 運勢快取訊息
+    private var cacheOmikujiArrays: [CacheMessage] = []
 }
 
 // 主體
@@ -156,7 +160,8 @@ private extension Bot {
             let probability = Probability()
             
             guard let self = self,
-                  let message = $0 as? Message else { return }
+                  let message = $0 as? Message,
+                  let user = message.author else { return }
             
             let content = message.content
             
@@ -340,6 +345,31 @@ private extension Bot {
                     message.reply(with: ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " \(boss)")
                 }
             case .運勢:
+                let cacheItems = self.cacheOmikujiArrays
+                    .first { $0.id == user.id.rawValue }
+                
+                if let item = cacheItems {
+                    let calendar = Calendar.current
+                    let components = calendar.dateComponents([.second],
+                                                             from: item.commandMessage.timestamp,
+                                                             to: message.timestamp)
+                    
+                    // 快取一個小時
+                    guard let second = components.second, second > 3600 else {
+                        
+                        message.reply(with: item.sendMessage)
+                        
+                        return
+                    }
+                    
+                    let cacheItemFirst = self.cacheOmikujiArrays
+                        .firstIndex { $0.id == user.id.rawValue }
+                    
+                    guard let firstIndex = cacheItemFirst else { return }
+                    
+                    self.cacheOmikujiArrays.remove(at: firstIndex)
+                }
+                
                 let probabilityItem: [Probability.ProbabilityItem<Omikuji>] = Omikuji
                     .allCases
                     .map { .init(item: $0, percent: $0.percent) }
@@ -357,9 +387,16 @@ private extension Bot {
                     }
                 }
                 
-                message.reply(with: emoji + " 當前運勢" + " `" + random.item.rawValue + "`")
+                let sendMessage = emoji + " 當前運勢" + " `" + random.item.rawValue + "`"
+                
+                self.cacheOmikujiArrays.append(.init(id: user.id.rawValue,
+                                                     sendMessage: sendMessage,
+                                                     commandMessage: message))
+                
+                message.reply(with: sendMessage)
             case .測試:
                 App.log("\(message.channel.id)")
+                App.log("\(user.id.rawValue)")
                 App.log("\(message)")
             }
         }
