@@ -462,7 +462,7 @@ private extension BotViewModel {
             let bossNoticeContent = ":alarm_clock:" + " 世界王提醒 " + "`\(bossTime)`" + " \(boss)"
             let textChannel: BossNoticeChannel = .init(lastMessageId: nil,
                                                        sword: sword,
-                                                       id: BossNoticeList.testChannel.id,
+                                                       id: BossNoticeList.textChannel.id,
                                                        type: .guildText)
             
             guard 120...150 ~= bossSchedule.times - nowSecond else {
