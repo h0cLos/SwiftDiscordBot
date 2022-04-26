@@ -33,6 +33,8 @@ class Bot: Sword {
         case 世界王
         case 世界王檢查
         case 運勢
+        case AP
+        case DP
         case 測試
         /// 描述
         var description: String {
@@ -59,6 +61,10 @@ class Bot: Sword {
                 return "由觸發機器人觸發的檢查指令"
             case .運勢:
                 return "由機器人不負責任的鐵口直斷"
+            case .AP:
+                return "面板攻擊力門檻加成獎勵；範例: \(App.prefixString)AP 249"
+            case .DP:
+                return "面板防禦力門檻加成獎勵；範例: \(App.prefixString)DP 301"
             case .測試:
                 return "試錯階段指令"
             }

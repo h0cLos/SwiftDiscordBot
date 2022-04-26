@@ -107,13 +107,13 @@ extension BotViewModel: BotViewModelIntput {
         
         // 指令
         guard let messageCommand = messageContentArrays.first,
-              let command = Bot.Command(rawValue: messageCommand) else { return }
+              let command = Bot.Command(rawValue: messageCommand.uppercased()) else { return }
         
         // 指令後帶的內容
-        var messageBody: String {
+        var messageBody: String? {
             guard messageContentArrays.count > 1,
                   let body = messageContentArrays.last else {
-                      return .init()
+                      return nil
                   }
             
             return body
@@ -122,6 +122,9 @@ extension BotViewModel: BotViewModelIntput {
         switch command {
         case .幫助:
             helpCommand(channel: message.channel)
+        case .序號:
+            serialNumberCommand(messageBody: messageBody,
+                                channel: message.channel)
         case .分流列表:
             serviceDiversionListCommand(channel: message.channel)
         case .季節, .分流, .赫敦:
@@ -129,13 +132,16 @@ extension BotViewModel: BotViewModelIntput {
                                     channel: message.channel)
         case .骰子, .退坑:
             gameDiceCommand(channel: message.channel)
-        case .運勢:
-            omikujiCommand(message: message)
-        case .序號:
-            serialNumberCommand(messageBody: messageBody,
-                                channel: message.channel)
         case .世界王, .世界王檢查:
             bossCommand(command: command, channel: message.channel)
+        case .運勢:
+            omikujiCommand(message: message)
+        case .AP:
+            bonusAPCommand(messageBody: messageBody,
+                           channel: message.channel)
+        case .DP:
+            bonusDPCommand(messageBody: messageBody,
+                           channel: message.channel)
         case .測試:
             App.log("\(message)")
         }
@@ -203,6 +209,46 @@ private extension BotViewModel {
                           messageString: (commandHelp + commandTest).joined(separator: "\n")))
     }
     
+    func serialNumberCommand(messageBody: String?, channel: TextChannel) {
+        guard let bodyArrays = messageBody?.components(separatedBy: ","), bodyArrays.count > 2 else {
+            send.accept(.init(channel: channel,
+                              messageString: ":mag_right:" + " 內容有誤，請再次確認"))
+            
+            return
+        }
+        
+        let messageContent = bodyArrays
+            .enumerated()
+            .map {
+                switch $0.offset {
+                case 0:
+                    return "- \($0.element)"
+                case 1:
+                    return "+ \($0.element)"
+                default:
+                    let itemContent = $0.element
+                    
+                    var item: String {
+                        let itemArrays = itemContent.components(separatedBy: ":")
+                        
+                        guard itemArrays.count > 1,
+                              let itemName = itemArrays.first,
+                              let count = itemArrays.last else { return "" }
+                        
+                        guard count != "1" else { return itemName }
+                        
+                        return "\(itemName) *\(count)"
+                    }
+                    
+                    return "└⎯⎯ \(item)"
+                }
+            }
+            .joined(separator: "\n")
+        
+        send.accept(.init(channel: channel,
+                          messageString: ":keyboard:" + " 序號內容：\n" + "```\ndiff\n\(messageContent)```"))
+    }
+    
     func serviceDiversionListCommand(channel: TextChannel) {
         let serviceDiversionList = ServiceDiversion
             .allCases
@@ -254,103 +300,6 @@ private extension BotViewModel {
                           messageString: ":game_die:" + " `" + random.item + "` 秒"))
     }
     
-    func omikujiCommand(message: Message) {
-        guard let user = message.author else { return }
-        
-        let cacheItems = cacheOmikujiArrays
-            .first { $0.userId == user.id.rawValue }
-        
-        if let item = cacheItems {
-            let calendar = Calendar.current
-            let components = calendar.dateComponents([.second],
-                                                     from: item.commandMessage.timestamp,
-                                                     to: message.timestamp)
-            
-            // 快取一個小時
-            guard let second = components.second, second > 3600 else {
-                send.accept(.init(channel: message.channel,
-                                  messageString: item.messageString))
-                
-                return
-            }
-            
-            let cacheItemFirst = cacheOmikujiArrays
-                .firstIndex { $0.userId == user.id.rawValue }
-            
-            guard let firstIndex = cacheItemFirst else { return }
-            
-            cacheOmikujiArrays.remove(at: firstIndex)
-        }
-        
-        let probabilityItem: [ProbabilityItem<Omikuji>] = Omikuji
-            .allCases
-            .map { .init(item: $0, percent: $0.percent) }
-        
-        guard let random = random(in: probabilityItem) else { return }
-        
-        var emoji: String {
-            switch random.item {
-            case .大吉:
-                return ":chart_with_upwards_trend:"
-            case .大凶:
-                return ":chart_with_downwards_trend:"
-            default:
-                return ":crystal_ball:"
-            }
-        }
-        
-        let sendMessage = emoji + " 當前運勢" + " `" + random.item.rawValue + "`"
-        
-        cacheOmikujiArrays.append(.init(userId: user.id.rawValue,
-                                        messageString: sendMessage,
-                                        commandMessage: message))
-        
-        send.accept(.init(channel: message.channel,
-                          messageString: sendMessage))
-    }
-    
-    func serialNumberCommand(messageBody: String, channel: TextChannel) {
-        let bodyArrays = messageBody.components(separatedBy: ",")
-        
-        guard bodyArrays.count > 2 else {
-            send.accept(.init(channel: channel,
-                              messageString: ":mag_right:" + " 內容有誤，請再次確認"))
-            
-            return
-        }
-        
-        let messageContent = bodyArrays
-            .enumerated()
-            .map {
-                switch $0.offset {
-                case 0:
-                    return "- \($0.element)"
-                case 1:
-                    return "+ \($0.element)"
-                default:
-                    let itemContent = $0.element
-                    
-                    var item: String {
-                        let itemArrays = itemContent.components(separatedBy: ":")
-                        
-                        guard itemArrays.count > 1,
-                              let itemName = itemArrays.first,
-                              let count = itemArrays.last else { return "" }
-                        
-                        guard count != "1" else { return itemName }
-                        
-                        return "\(itemName) *\(count)"
-                    }
-                    
-                    return "└⎯⎯ \(item)"
-                }
-            }
-            .joined(separator: "\n")
-        
-        send.accept(.init(channel: channel,
-                          messageString: ":keyboard:" + " 序號內容：\n" + "```\ndiff\n\(messageContent)```"))
-    }
-    
     func bossCommand(command: Bot.Command, channel: TextChannel) {
         func weekdayBossSchedule(weekday: WeekDay) -> [BossTimeSchedule] {
             guard let model = bossScheduleModel else { return [] }
@@ -366,7 +315,7 @@ private extension BotViewModel {
                     return .init(boss: $0.boss,
                                  schedule: schedule)
                 }
-                .filter { !$0.schedule.isEmpty }
+                .filter { $0.schedule.isNotEmpty }
             
             // 整理今日的世界王的出席時間
             let sordBoss = todaySchedule
@@ -392,7 +341,7 @@ private extension BotViewModel {
                             return .init(boss: $0.boss,
                                          schedule: dayTimeSchedule)
                         }
-                        .filter { !$0.schedule.isEmpty }
+                        .filter { $0.schedule.isNotEmpty }
                     
                     return .init(boss: sordBoss.map { $0.boss },
                                  times: $0)
@@ -475,6 +424,113 @@ private extension BotViewModel {
             send.accept(.init(channel: channel,
                               messageString: ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " \(boss)"))
         }
+    }
+    
+    func omikujiCommand(message: Message) {
+        guard let user = message.author else { return }
+        
+        let cacheItems = cacheOmikujiArrays
+            .first { $0.userId == user.id.rawValue }
+        
+        if let item = cacheItems {
+            let calendar = Calendar.current
+            let components = calendar.dateComponents([.second],
+                                                     from: item.commandMessage.timestamp,
+                                                     to: message.timestamp)
+            
+            // 快取一個小時
+            guard let second = components.second, second > 3600 else {
+                send.accept(.init(channel: message.channel,
+                                  messageString: item.messageString))
+                
+                return
+            }
+            
+            let cacheItemFirst = cacheOmikujiArrays
+                .firstIndex { $0.userId == user.id.rawValue }
+            
+            guard let firstIndex = cacheItemFirst else { return }
+            
+            cacheOmikujiArrays.remove(at: firstIndex)
+        }
+        
+        let probabilityItem: [ProbabilityItem<Omikuji>] = Omikuji
+            .allCases
+            .map { .init(item: $0, percent: $0.percent) }
+        
+        guard let random = random(in: probabilityItem) else { return }
+        
+        var emoji: String {
+            switch random.item {
+            case .大吉:
+                return ":chart_with_upwards_trend:"
+            case .大凶:
+                return ":chart_with_downwards_trend:"
+            default:
+                return ":crystal_ball:"
+            }
+        }
+        
+        let sendMessage = emoji + " 當前運勢" + " `" + random.item.rawValue + "`"
+        
+        cacheOmikujiArrays.append(.init(userId: user.id.rawValue,
+                                        messageString: sendMessage,
+                                        commandMessage: message))
+        
+        send.accept(.init(channel: message.channel,
+                          messageString: sendMessage))
+    }
+    
+    func bonusAPCommand(messageBody: String?, channel: TextChannel) {
+        guard let messageBody = messageBody,
+              let nowAP = Int(messageBody) else {
+                  send.accept(.init(channel: channel,
+                                    messageString: ":mag_right:" + " 內容有誤，請再次確認"))
+            return
+        }
+        
+        let bonusList = BonusAP
+            .allCases
+            .filter { $0.rawValue < nowAP }
+        
+        guard bonusList.isNotEmpty,
+              let last = bonusList.last else {
+                  send.accept(.init(channel: channel,
+                                    messageString: ":clipboard:" + " 沒有套用獎勵攻擊力"))
+            return
+        }
+        
+        let apScope = "(\(last.rawValue)~" + last.maxAP + ")"
+        let apBonusAttack = "套用獎勵攻擊力 `\(last.bonusAttack)`"
+        
+        send.accept(.init(channel: channel,
+                          messageString: ":clipboard:" + " AP `" + messageBody + "` " + apScope + "，" + apBonusAttack))
+    }
+    
+    func bonusDPCommand(messageBody: String?, channel: TextChannel) {
+        guard let messageBody = messageBody,
+              let nowDP = Int(messageBody) else {
+                  send.accept(.init(channel: channel,
+                                    messageString: ":mag_right:" + " 內容有誤，請再次確認"))
+            return
+        }
+        
+        let bonusList = BonusDP
+            .allCases
+            .filter { $0.rawValue < nowDP }
+        
+        guard bonusList.isNotEmpty,
+              let last = bonusList.last else {
+                  send.accept(.init(channel: channel,
+                                    messageString: ":clipboard:" + " 沒有套用追加傷害減少"))
+            return
+        }
+        
+        let dpScope = "(\(last.rawValue)~" + last.maxDP + ")"
+        let dpBonusDefense = "套用追加傷害減少 `\(last.bonusDefense)` %"
+        
+        send.accept(.init(channel: channel,
+                          messageString: ":clipboard:" + " DP `" + messageBody + "` " + dpScope + "，" + dpBonusDefense))
     }
     
     /// 隨機列出一則內容
