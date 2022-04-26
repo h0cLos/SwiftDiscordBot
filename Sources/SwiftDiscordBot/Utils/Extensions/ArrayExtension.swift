@@ -18,6 +18,6 @@ extension Array where Element: Hashable {
 
 extension Array {
     var isNotEmpty: Bool {
-        !isEmpty
+        return !isEmpty
     }
 }
