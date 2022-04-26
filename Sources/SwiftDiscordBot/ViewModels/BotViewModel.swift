@@ -491,7 +491,7 @@ private extension BotViewModel {
         
         let bonusList = BonusAP
             .allCases
-            .filter { $0.rawValue < nowAP }
+            .filter { nowAP >= $0.rawValue }
         
         guard bonusList.isNotEmpty,
               let last = bonusList.last else {
@@ -517,7 +517,7 @@ private extension BotViewModel {
         
         let bonusList = BonusDP
             .allCases
-            .filter { $0.rawValue < nowDP }
+            .filter { nowDP >= $0.rawValue }
         
         guard bonusList.isNotEmpty,
               let last = bonusList.last else {

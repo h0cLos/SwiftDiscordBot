@@ -16,7 +16,7 @@ struct App {
     private static let environment = ProcessInfo.processInfo.environment
     private static let discordToken = { () -> String in
         guard let discordToken = environment["DISCORD_TOKEN"],
-              discordToken.isNotEmpty else {
+              !discordToken.isEmpty else {
             fatalError("Can't find `DISCORD_TOKEN` environment variable!")
         }
         
