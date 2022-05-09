@@ -33,6 +33,9 @@ class Bot: Sword {
         case 世界王
         case 世界王檢查
         case 運勢
+        case 御御籤
+        case 御神籤
+        case おみくじ
         case AP
         case DP
         case 測試
@@ -59,8 +62,8 @@ class Bot: Sword {
                 return "告知最接近當前時間的世界王"
             case .世界王檢查:
                 return "由觸發機器人觸發的檢查指令"
-            case .運勢:
-                return "由機器人不負責任的鐵口直斷"
+            case .運勢, .御御籤, .御神籤, .おみくじ:
+                return "由機器人不負責任的鐵口直斷；再次使用時間 15 分鐘"
             case .AP:
                 return "面板攻擊力門檻加成獎勵；範例: \(App.prefixString)AP 249"
             case .DP:
