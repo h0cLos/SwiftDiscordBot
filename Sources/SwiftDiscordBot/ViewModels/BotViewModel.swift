@@ -134,7 +134,7 @@ extension BotViewModel: BotViewModelIntput {
             gameDiceCommand(channel: message.channel)
         case .世界王, .世界王檢查:
             bossCommand(command: command, channel: message.channel)
-        case .運勢:
+        case .運勢, .御御籤, .御神籤, .おみくじ:
             omikujiCommand(message: message)
         case .AP:
             bonusAPCommand(messageBody: messageBody,
@@ -437,20 +437,20 @@ private extension BotViewModel {
             let components = calendar.dateComponents([.second],
                                                      from: item.commandMessage.timestamp,
                                                      to: message.timestamp)
-            
-            // 快取一個小時
-            guard let second = components.second, second > 3600 else {
+
+            // 快取十五分鐘
+            guard let second = components.second, second > 900 else {
                 send.accept(.init(channel: message.channel,
                                   messageString: item.messageString))
-                
+
                 return
             }
-            
+
             let cacheItemFirst = cacheOmikujiArrays
                 .firstIndex { $0.userId == user.id.rawValue }
-            
+
             guard let firstIndex = cacheItemFirst else { return }
-            
+
             cacheOmikujiArrays.remove(at: firstIndex)
         }
         
@@ -462,7 +462,7 @@ private extension BotViewModel {
         
         var emoji: String {
             switch random.item {
-            case .大吉:
+            case .超級大吉:
                 return ":chart_with_upwards_trend:"
             case .大凶:
                 return ":chart_with_downwards_trend:"

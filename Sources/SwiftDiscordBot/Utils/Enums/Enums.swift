@@ -145,24 +145,35 @@ enum WeekDay: Int, Codable, CaseIterable {
 
 /// 運勢
 enum Omikuji: String, CaseIterable {
+    case 超級大吉
     case 大吉
-    case 中吉
     case 小吉
     case 吉
     case 半吉
     case 末吉
     case 末小吉
     case 凶
-    case 小凶
-    case 半凶
-    case 末凶
     case 大凶
     /// 機率
     var percent: Int {
         switch self {
-        case .大吉, .大凶:
-            return 8
-        default:
+        case .超級大吉:
+            return 5
+        case .大吉:
+            return 75
+        case .小吉:
+            return 40
+        case .吉:
+            return 60
+        case .半吉:
+            return 50
+        case .末吉:
+            return 60
+        case .末小吉:
+            return 30
+        case .凶:
+            return 150
+        case .大凶:
             return 10
         }
     }
