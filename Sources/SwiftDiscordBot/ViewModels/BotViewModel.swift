@@ -84,11 +84,13 @@ class BotViewModel: BotViewModelPrototype {
     required init(_ sword: Sword) {
         self.sword = sword
     }
-
+    
     /// 世界王 model
     private var bossScheduleModel: BossScheduleModel?
     /// 運勢快取訊息
-    private var cacheOmikujiArrays: [CacheMessage] = []
+    private var cacheOmikujiHistory: [CacheMessage] = []
+    /// 世界王通知快取訊息
+    private var cacheBossNoticeHistory: [CacheMessage] = []
     
     private let sword: Sword
 }
@@ -133,7 +135,8 @@ extension BotViewModel: BotViewModelIntput {
         case .骰子, .退坑:
             gameDiceCommand(channel: message.channel)
         case .世界王, .世界王檢查:
-            bossCommand(command: command, channel: message.channel)
+            bossCommand(command: command,
+                        message: message)
         case .運勢, .御御籤, .御神籤, .おみくじ:
             omikujiCommand(message: message)
         case .AP:
@@ -260,21 +263,11 @@ private extension BotViewModel {
     
     func serviceDiversionCommand(command: Bot.Command, channel: TextChannel) {
         var isHutton: Bool {
-            guard case let command = command,
-                  command == .赫敦 else {
-                      return false
-                  }
-            
-            return true
+            command == .赫敦
         }
         
         var isSeason: Bool {
-            guard case let command = command,
-                  command == .季節 else {
-                      return false
-                  }
-            
-            return true
+            command == .季節
         }
         
         let probabilityItem: [ProbabilityItem<ServiceDiversion>] = ServiceDiversion
@@ -300,7 +293,7 @@ private extension BotViewModel {
                           messageString: ":game_die:" + " `" + random.item + "` 秒"))
     }
     
-    func bossCommand(command: Bot.Command, channel: TextChannel) {
+    func bossCommand(command: Bot.Command, message: Message) {
         func weekdayBossSchedule(weekday: WeekDay) -> [BossTimeSchedule] {
             guard let model = bossScheduleModel else { return [] }
             
@@ -354,11 +347,11 @@ private extension BotViewModel {
         func closestBoss(weekday: WeekDay, nowSecond: Int) -> BossTimeSchedule? {
             let closestBossSchedule = weekdayBossSchedule(weekday: weekday)
                 .filter { $0.times > nowSecond }
-
+            
             guard closestBossSchedule.isEmpty else {
                 return closestBossSchedule.first
             }
-
+            
             // 今日世界王已經出完，獲取隔一日的列表
             let maxWeekdayRawValue = WeekDay
                 .allCases
@@ -366,19 +359,21 @@ private extension BotViewModel {
                 .map { $0.rawValue }
                 .sorted { $0 > $1 }
                 .first ?? WeekDay.unknown.rawValue
-
+            
             var newWeekday: WeekDay {
                 let newRawValue = weekday.rawValue + 1
-
+                
                 guard newRawValue > maxWeekdayRawValue else {
                     return WeekDay(rawValue: newRawValue) ?? .unknown
                 }
-
+                
                 return .sunday
             }
-
+            
             return weekdayBossSchedule(weekday: newWeekday).first
         }
+        
+        guard let user = message.author else { return }
         
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(secondsFromGMT: 8 * 60 * 60)!
@@ -400,15 +395,11 @@ private extension BotViewModel {
             .joined(separator: "、")
         
         var isCheck: Bool {
-            guard case let command = command, command == .世界王檢查 else {
-                return false
-            }
-            
-            return true
+            command == .世界王檢查
         }
         
         if isCheck {
-            let bossNoticeContent = ":alarm_clock:" + " 世界王提醒 " + "`\(bossTime)`" + " \(boss)"
+            let sendMessage = ":alarm_clock:" + " 世界王提醒 " + "`\(bossTime)`" + " \(boss)"
             let textChannel: BossNoticeChannel = .init(lastMessageId: nil,
                                                        sword: sword,
                                                        id: BossNoticeList.textChannel.id,
@@ -418,10 +409,36 @@ private extension BotViewModel {
                 return
             }
             
+            let cacheItems = cacheBossNoticeHistory
+                .first { $0.userId == user.id.rawValue }
+            
+            if let item = cacheItems {
+                let calendar = Calendar.current
+                let components = calendar.dateComponents([.second],
+                                                         from: item.commandMessage.timestamp,
+                                                         to: message.timestamp)
+                
+                // 凍結三分鐘的發言
+                guard let second = components.second, second > 180 else {
+                    return
+                }
+                
+                let cacheItemFirst = cacheBossNoticeHistory
+                    .firstIndex { $0.userId == user.id.rawValue }
+                
+                guard let firstIndex = cacheItemFirst else { return }
+                
+                cacheBossNoticeHistory.remove(at: firstIndex)
+            }
+            
+            cacheBossNoticeHistory.append(.init(userId: user.id.rawValue,
+                                                messageString: sendMessage,
+                                                commandMessage: message))
+            
             send.accept(.init(channel: textChannel,
-                              messageString: bossNoticeContent))
+                              messageString: sendMessage))
         } else {
-            send.accept(.init(channel: channel,
+            send.accept(.init(channel: message.channel,
                               messageString: ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " \(boss)"))
         }
     }
@@ -429,7 +446,7 @@ private extension BotViewModel {
     func omikujiCommand(message: Message) {
         guard let user = message.author else { return }
         
-        let cacheItems = cacheOmikujiArrays
+        let cacheItems = cacheOmikujiHistory
             .first { $0.userId == user.id.rawValue }
         
         if let item = cacheItems {
@@ -437,21 +454,21 @@ private extension BotViewModel {
             let components = calendar.dateComponents([.second],
                                                      from: item.commandMessage.timestamp,
                                                      to: message.timestamp)
-
+            
             // 快取十五分鐘
             guard let second = components.second, second > 900 else {
                 send.accept(.init(channel: message.channel,
                                   messageString: item.messageString))
-
+                
                 return
             }
-
-            let cacheItemFirst = cacheOmikujiArrays
+            
+            let cacheItemFirst = cacheOmikujiHistory
                 .firstIndex { $0.userId == user.id.rawValue }
-
+            
             guard let firstIndex = cacheItemFirst else { return }
-
-            cacheOmikujiArrays.remove(at: firstIndex)
+            
+            cacheOmikujiHistory.remove(at: firstIndex)
         }
         
         let probabilityItem: [ProbabilityItem<Omikuji>] = Omikuji
@@ -473,9 +490,9 @@ private extension BotViewModel {
         
         let sendMessage = emoji + " 當前運勢" + " `" + random.item.rawValue + "`"
         
-        cacheOmikujiArrays.append(.init(userId: user.id.rawValue,
-                                        messageString: sendMessage,
-                                        commandMessage: message))
+        cacheOmikujiHistory.append(.init(userId: user.id.rawValue,
+                                         messageString: sendMessage,
+                                         commandMessage: message))
         
         send.accept(.init(channel: message.channel,
                           messageString: sendMessage))
@@ -486,8 +503,8 @@ private extension BotViewModel {
               let nowAP = Int(messageBody) else {
                   send.accept(.init(channel: channel,
                                     messageString: ":mag_right:" + " 內容有誤，請再次確認"))
-            return
-        }
+                  return
+              }
         
         let bonusList = BonusAP
             .allCases
@@ -497,8 +514,8 @@ private extension BotViewModel {
               let last = bonusList.last else {
                   send.accept(.init(channel: channel,
                                     messageString: ":clipboard:" + " 沒有套用獎勵攻擊力"))
-            return
-        }
+                  return
+              }
         
         let apScope = "(\(last.rawValue)~" + last.maxAP + ")"
         let apBonusAttack = "套用獎勵攻擊力 `\(last.bonusAttack)`"
@@ -512,8 +529,8 @@ private extension BotViewModel {
               let nowDP = Int(messageBody) else {
                   send.accept(.init(channel: channel,
                                     messageString: ":mag_right:" + " 內容有誤，請再次確認"))
-            return
-        }
+                  return
+              }
         
         let bonusList = BonusDP
             .allCases
@@ -523,8 +540,8 @@ private extension BotViewModel {
               let last = bonusList.last else {
                   send.accept(.init(channel: channel,
                                     messageString: ":clipboard:" + " 沒有套用追加傷害減少"))
-            return
-        }
+                  return
+              }
         
         let dpScope = "(\(last.rawValue)~" + last.maxDP + ")"
         let dpBonusDefense = "套用追加傷害減少 `\(last.bonusDefense)` %"
