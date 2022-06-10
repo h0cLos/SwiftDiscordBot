@@ -263,11 +263,11 @@ private extension BotViewModel {
     
     func serviceDiversionCommand(command: Bot.Command, channel: TextChannel) {
         var isHutton: Bool {
-            command == .赫敦
+            return command == .赫敦
         }
         
         var isSeason: Bool {
-            command == .季節
+            return command == .季節
         }
         
         let probabilityItem: [ProbabilityItem<ServiceDiversion>] = ServiceDiversion
@@ -395,7 +395,7 @@ private extension BotViewModel {
             .joined(separator: "、")
         
         var isCheck: Bool {
-            command == .世界王檢查
+            return command == .世界王檢查
         }
         
         if isCheck {
