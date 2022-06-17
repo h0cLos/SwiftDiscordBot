@@ -30,6 +30,7 @@ class Bot: Sword {
         case 季節
         case 骰子
         case 退坑
+        case 頭目
         case 世界王
         case 世界王檢查
         case 運勢
@@ -58,8 +59,10 @@ class Bot: Sword {
                 return "隨機挑選 1-28 的秒數"
             case .退坑:
                 return "同指令「骰子」"
+            case .頭目:
+                return "查詢時間最近的頭目；查詢今天的頭目，範例： \(App.prefixString)頭目 今天"
             case .世界王:
-                return "告知最接近當前時間的世界王"
+                return "查詢時間最近的世界王；查詢明天的世界王，範例： \(App.prefixString)世界王 明天"
             case .世界王檢查:
                 return "由觸發機器人觸發的檢查指令"
             case .運勢, .御御籤, .御神籤, .おみくじ:
@@ -90,6 +93,16 @@ class Bot: Sword {
                 return false
             }
         }
+    }
+    
+    // 選項指令
+    enum 世界王指令選項: String, CaseIterable {
+        /// 今天全部
+        case 今天
+        /// 明天全部
+        case 明天
+        /// 空值
+        case empty
     }
     
     init(token: String) {
