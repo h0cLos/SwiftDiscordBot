@@ -134,8 +134,9 @@ extension BotViewModel: BotViewModelIntput {
                                     channel: message.channel)
         case .骰子, .退坑:
             gameDiceCommand(channel: message.channel)
-        case .世界王, .世界王檢查:
-            bossCommand(command: command,
+        case .頭目, .世界王, .世界王檢查:
+            bossCommand(messageBody: messageBody,
+                        command: command,
                         message: message)
         case .運勢, .御御籤, .御神籤, .おみくじ:
             omikujiCommand(message: message)
@@ -293,7 +294,7 @@ private extension BotViewModel {
                           messageString: ":game_die:" + " `" + random.item + "` 秒"))
     }
     
-    func bossCommand(command: Bot.Command, message: Message) {
+    func bossCommand(messageBody: String?, command: Bot.Command, message: Message) {
         func weekdayBossSchedule(weekday: WeekDay) -> [BossTimeSchedule] {
             guard let model = bossScheduleModel else { return [] }
             
@@ -344,12 +345,12 @@ private extension BotViewModel {
             return sordBossSecond
         }
         
-        func closestBoss(weekday: WeekDay, nowSecond: Int) -> BossTimeSchedule? {
+        func closestBosses(weekday: WeekDay, filterSecond: Int) -> [BossTimeSchedule]? {
             let closestBossSchedule = weekdayBossSchedule(weekday: weekday)
-                .filter { $0.times > nowSecond }
+                .filter { $0.times > filterSecond }
             
             guard closestBossSchedule.isEmpty else {
-                return closestBossSchedule.first
+                return closestBossSchedule
             }
             
             // 今日世界王已經出完，獲取隔一日的列表
@@ -370,10 +371,14 @@ private extension BotViewModel {
                 return .sunday
             }
             
-            return weekdayBossSchedule(weekday: newWeekday).first
+            return weekdayBossSchedule(weekday: newWeekday)
         }
         
         guard let user = message.author else { return }
+        
+        var isBossCheck: Bool {
+            return command == .世界王檢查
+        }
         
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(secondsFromGMT: 8 * 60 * 60)!
@@ -382,24 +387,35 @@ private extension BotViewModel {
         let weekday = calendar.component(.weekday, from: date)
         let hourAndMinute = calendar.dateComponents([.hour, .minute], from: date)
         let nowSecond = hourAndMinute.hour! * 60 * 60 + hourAndMinute.minute! * 60
+        let optional = Bot.世界王指令選項(rawValue: messageBody ?? .init()) ?? .empty
         
-        guard let nowWeekday = WeekDay(rawValue: weekday),
-              let bossSchedule = closestBoss(weekday: nowWeekday, nowSecond: nowSecond) else { return }
-        
-        let (hour, minuteSecond) = bossSchedule.times.quotientAndRemainder(dividingBy: 60 * 60)
-        let (minute, _) = minuteSecond.quotientAndRemainder(dividingBy: 60)
-        let bossTime = String(format: "%02d:%02d", hour, minute)
-        let boss = bossSchedule
-            .boss
-            .map { "`\($0.name)`" }
-            .joined(separator: "、")
-        
-        var isCheck: Bool {
-            return command == .世界王檢查
+        var filterSecond: Int {
+            let nowSecond = hourAndMinute.hour! * 60 * 60 + hourAndMinute.minute! * 60
+            
+            guard !isBossCheck, optional != .empty else {
+                return nowSecond
+            }
+            
+            guard optional == .今天 else {
+                return 86400
+            }
+            
+            return 0
         }
+    
+        guard let nowWeekday = WeekDay(rawValue: weekday),
+              let bossSchedules = closestBosses(weekday: nowWeekday, filterSecond: filterSecond) else { return }
         
-        if isCheck {
-            let sendMessage = ":alarm_clock:" + " 世界王提醒 " + "`\(bossTime)`" + " \(boss)"
+        if isBossCheck {
+            guard let bossSchedule = bossSchedules.first else { return }
+            
+            let bossTime = bossSchedule.times.formatString
+            let boss = bossSchedule
+                .boss
+                .map { "`\($0.name)`" }
+                .joined(separator: "、")
+            
+            let sendMessage = ":alarm_clock:" + " 世界王提醒 " + "`\(bossTime)`" + " - " + " \(boss)"
             let textChannel: BossNoticeChannel = .init(lastMessageId: nil,
                                                        sword: sword,
                                                        id: BossNoticeList.textChannel.id,
@@ -438,8 +454,39 @@ private extension BotViewModel {
             send.accept(.init(channel: textChannel,
                               messageString: sendMessage))
         } else {
-            send.accept(.init(channel: message.channel,
-                              messageString: ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " \(boss)"))
+            switch optional {
+            case .今天, .明天:
+                let bossScheduleList = bossSchedules.map { schedule -> String in
+                    let bossTime = schedule.times.formatString
+                    let boss = schedule
+                        .boss
+                        .map { "`\($0.name)`" }
+                        .joined(separator: "、")
+                    
+                    return ":stopwatch:" + " `\(bossTime)`" + " - " + " \(boss)"
+                }
+                
+                send.accept(.init(channel: message.channel,
+                                  messageString: bossScheduleList.joined(separator: "\n")))
+            case .empty:
+                guard let bossSchedule = bossSchedules.first else { return }
+                
+                let bossTime = bossSchedule.times.formatString
+                let boss = bossSchedule
+                    .boss
+                    .map { "`\($0.name)`" }
+                    .joined(separator: "、")
+                
+                var bossTitleString: String {
+                    guard command == .頭目 else { return "世界王" }
+                    return "頭目"
+                }
+                
+                let sendMessage = ":stopwatch:" + " 下一批\(bossTitleString) " + "`\(bossTime)`" + " - " + " \(boss)"
+                
+                send.accept(.init(channel: message.channel,
+                                  messageString: sendMessage))
+            }
         }
     }
     
