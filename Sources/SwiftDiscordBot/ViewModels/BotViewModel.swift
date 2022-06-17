@@ -390,8 +390,6 @@ private extension BotViewModel {
         let optional = Bot.世界王指令選項(rawValue: messageBody ?? .init()) ?? .empty
         
         var filterSecond: Int {
-            let nowSecond = hourAndMinute.hour! * 60 * 60 + hourAndMinute.minute! * 60
-            
             guard !isBossCheck, optional != .empty else {
                 return nowSecond
             }
@@ -402,7 +400,7 @@ private extension BotViewModel {
             
             return 0
         }
-    
+        
         guard let nowWeekday = WeekDay(rawValue: weekday),
               let bossSchedules = closestBosses(weekday: nowWeekday, filterSecond: filterSecond) else { return }
         
@@ -456,15 +454,16 @@ private extension BotViewModel {
         } else {
             switch optional {
             case .今天, .明天:
-                let bossScheduleList = bossSchedules.map { schedule -> String in
-                    let bossTime = schedule.times.formatString
-                    let boss = schedule
-                        .boss
-                        .map { "`\($0.name)`" }
-                        .joined(separator: "、")
-                    
-                    return ":stopwatch:" + " `\(bossTime)`" + " - " + " \(boss)"
-                }
+                let bossScheduleList = bossSchedules
+                    .map { schedule -> String in
+                        let bossTime = schedule.times.formatString
+                        let boss = schedule
+                            .boss
+                            .map { "`\($0.name)`" }
+                            .joined(separator: "、")
+                        
+                        return ":stopwatch:" + " `\(bossTime)`" + " - " + " \(boss)"
+                    }
                 
                 send.accept(.init(channel: message.channel,
                                   messageString: bossScheduleList.joined(separator: "\n")))
