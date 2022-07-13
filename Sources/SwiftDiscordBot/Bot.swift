@@ -76,7 +76,7 @@ class Bot: Sword {
             }
         }
         /// 是否顯示
-        var present: Bool {
+        var isPresent: Bool {
             switch self {
             case .幫助, .測試, .世界王檢查:
                 return false
@@ -84,8 +84,17 @@ class Bot: Sword {
                 return true
             }
         }
+        /// 是否啟用
+        var isActive: Bool {
+            switch self {
+            case .季節:
+                return App.isSeasonMode
+            default:
+                return true
+            }
+        }
         /// 是否為測試
-        var test: Bool {
+        var isTest: Bool {
             switch self {
             case .測試:
                 return true

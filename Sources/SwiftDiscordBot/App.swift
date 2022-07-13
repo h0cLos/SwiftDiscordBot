@@ -7,6 +7,11 @@ import Sword
 import Yams
 
 struct App {
+    static var isSeasonMode: Bool {
+        let isSeason = environment["ISSEASON"] ?? "false"
+        return (isSeason as NSString).boolValue
+    }
+    
     static let prefixString = "!"
     static let nickname = environment["NICKNAME"] ?? "debugMode"
     static let playing = "弄壞玩家易碎的心"
