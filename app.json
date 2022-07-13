@@ -17,11 +17,8 @@
       "description": "Bot's nickname",
       "required": false
     },
-    "TIMEOUT": {
-      "required": false
-    },
-    "UPLOADER": {
-      "description": "Select uploader from [`file.io`, `ptpb.pw`]",
+    "ISSEASON": {
+      "description": "Switch season mode",
       "required": false
     }
   }

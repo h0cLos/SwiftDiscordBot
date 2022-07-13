@@ -7,8 +7,15 @@ import Sword
 import Yams
 
 struct App {
-    static let prefixString = "!"
+    // 線上開關
+    static var isSeasonMode: Bool {
+        let isSeason = environment["ISSEASON"] ?? "false"
+        return (isSeason as NSString).boolValue
+    }
+    
+    // 基本設定
     static let nickname = environment["NICKNAME"] ?? "debugMode"
+    static let prefixString = "!"
     static let playing = "弄壞玩家易碎的心"
     static let bot = Bot(token: discordToken)
     

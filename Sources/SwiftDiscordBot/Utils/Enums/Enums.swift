@@ -12,7 +12,6 @@ enum PermissionList: UInt64, CaseIterable {
 
 /// 世界王通知推送頻道
 enum BossNoticeList: UInt64 {
-    case testChannel = 937307583537102940
     case textChannel = 960960062724137040
     /// id
     var id: Snowflake {
@@ -40,6 +39,9 @@ enum ServiceDiversion: String, CaseIterable {
     case 巴雷諾斯_3
     case 璐璐飛_1
     case 璐璐飛_2
+    case 璐璐飛_3
+    case 璐璐飛_4
+    case 璐璐飛_5
     case 瓦倫西亞_1
     case 瓦倫西亞_2
     case 瓦倫西亞_3
@@ -60,8 +62,6 @@ enum ServiceDiversion: String, CaseIterable {
         switch self {
         case .季節阿勒沙:
             return name + "(PVP)"
-        case .卡爾佩恩_3:
-            return name + " (奶綠線)"
         default:
             return name
         }
@@ -103,6 +103,15 @@ enum ServiceDiversion: String, CaseIterable {
             return true
         default:
             return false
+        }
+    }
+    /// 是否啟用
+    var isActive: Bool {
+        switch self {
+        case .璐璐飛_3, .璐璐飛_4, .璐璐飛_5:
+            return !App.isSeasonMode
+        default:
+            return true
         }
     }
 }
