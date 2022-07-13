@@ -198,15 +198,16 @@ private extension BotViewModel {
         // 普通指令
         let commandHelp = Bot.Command
             .allCases
-            .filter { $0.present }
-            .filter { !$0.test }
+            .filter { $0.isActive }
+            .filter { $0.isPresent }
+            .filter { !$0.isTest }
             .map { ":bulb: `\(App.prefixString)\($0)` - `\($0.description)`" }
         
         // 測試指令
         let commandTest = Bot.Command
             .allCases
-            .filter { $0.present }
-            .filter { $0.test }
+            .filter { $0.isPresent }
+            .filter { $0.isTest }
             .map { ":hammer_pick: `\(App.prefixString)\($0)` - `\($0.description)`" }
         
         send.accept(.init(channel: channel,
@@ -254,8 +255,11 @@ private extension BotViewModel {
     }
     
     func serviceDiversionListCommand(channel: TextChannel) {
+        let isSeasonMode = App.isSeasonMode
         let serviceDiversionList = ServiceDiversion
             .allCases
+            .filter { $0.isActive }
+            .filter { isSeasonMode ? true : !$0.isSeason }
             .map { $0.formatName }
         
         send.accept(.init(channel: channel,
@@ -271,11 +275,17 @@ private extension BotViewModel {
             return command == .季節
         }
         
+        guard command.isActive else { return }
+        
+        let isSeasonMode = App.isSeasonMode
         let probabilityItem: [ProbabilityItem<ServiceDiversion>] = ServiceDiversion
             .allCases
-            .filter { isSeason ? $0.isSeason : true }
+            .filter { $0.isActive }
+            .filter { isSeason ? $0.isSeason : (isSeasonMode ? true : !$0.isSeason) }
             .filter { isHutton ? $0.isHutton : true }
             .map { .init(item: $0, percent: 10) }
+        
+        print(probabilityItem)
         
         guard let random = random(in: probabilityItem) else { return }
         
