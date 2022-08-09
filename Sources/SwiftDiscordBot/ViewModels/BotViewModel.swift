@@ -285,8 +285,6 @@ private extension BotViewModel {
             .filter { isHutton ? $0.isHutton : true }
             .map { .init(item: $0, percent: 10) }
         
-        print(probabilityItem)
-        
         guard let random = random(in: probabilityItem) else { return }
         
         send.accept(.init(channel: channel,
