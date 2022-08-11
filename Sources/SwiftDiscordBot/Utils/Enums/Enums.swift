@@ -126,6 +126,7 @@ enum Boss: String, Codable {
     case 貝爾
     case 卡莫斯
     case 肯恩特_木拉卡
+    case 黑暗影子
     /// 名稱
     var name: String {
         return rawValue.replacingOccurrences(of: "_", with: "/")

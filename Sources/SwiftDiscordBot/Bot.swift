@@ -30,13 +30,9 @@ class Bot: Sword {
         case 季節
         case 骰子
         case 退坑
-        case 頭目
         case 世界王
         case 世界王檢查
         case 運勢
-        case 御御籤
-        case 御神籤
-        case おみくじ
         case AP
         case DP
         case 測試
@@ -59,13 +55,11 @@ class Bot: Sword {
                 return "隨機挑選 1-28 的秒數"
             case .退坑:
                 return "同指令「骰子」"
-            case .頭目:
-                return "查詢時間最近的頭目；查詢今天的頭目，範例： \(App.prefixString)頭目 今天"
             case .世界王:
                 return "查詢時間最近的世界王；查詢明天的世界王，範例： \(App.prefixString)世界王 明天"
             case .世界王檢查:
                 return "由觸發機器人觸發的檢查指令"
-            case .運勢, .御御籤, .御神籤, .おみくじ:
+            case .運勢:
                 return "由機器人不負責任的鐵口直斷；再次使用時間 15 分鐘"
             case .AP:
                 return "面板攻擊力門檻加成獎勵；範例: \(App.prefixString)AP 249"
@@ -112,6 +106,17 @@ class Bot: Sword {
         case 明天
         /// 空值
         case empty
+        /// 起始秒數
+        var second: Int? {
+            switch self {
+            case .今天:
+                return 0
+            case .明天:
+                return 86400
+            case .empty:
+                return nil
+            }
+        }
     }
     
     init(token: String) {

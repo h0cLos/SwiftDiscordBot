@@ -134,11 +134,11 @@ extension BotViewModel: BotViewModelIntput {
                                     channel: message.channel)
         case .骰子, .退坑:
             gameDiceCommand(channel: message.channel)
-        case .頭目, .世界王, .世界王檢查:
+        case .世界王, .世界王檢查:
             bossCommand(messageBody: messageBody,
                         command: command,
                         message: message)
-        case .運勢, .御御籤, .御神籤, .おみくじ:
+        case .運勢:
             omikujiCommand(message: message)
         case .AP:
             bonusAPCommand(messageBody: messageBody,
@@ -392,25 +392,29 @@ private extension BotViewModel {
         calendar.timeZone = TimeZone(secondsFromGMT: 8 * 60 * 60)!
         
         let date = Date()
-        let weekday = calendar.component(.weekday, from: date)
-        let hourAndMinute = calendar.dateComponents([.hour, .minute], from: date)
-        let nowSecond = hourAndMinute.hour! * 60 * 60 + hourAndMinute.minute! * 60
         let optional = Bot.世界王指令選項(rawValue: messageBody ?? .init()) ?? .empty
         
-        var filterSecond: Int {
+        var weekday: Int {
             guard !isBossCheck, optional != .empty else {
-                return nowSecond
+                return calendar.component(.weekday, from: date)
             }
             
-            guard optional == .今天 else {
-                return 86400
+            let newDate = calendar.date(byAdding: .second, value: optional.second ?? 0, to: date)!
+            return calendar.component(.weekday, from: newDate)
+        }
+        
+        let hourAndMinute = calendar.dateComponents([.hour, .minute], from: date)
+        
+        var nowSecond: Int {
+            guard !isBossCheck, optional != .empty else {
+                return hourAndMinute.hour! * 60 * 60 + hourAndMinute.minute! * 60
             }
             
             return 0
         }
         
         guard let nowWeekday = WeekDay(rawValue: weekday),
-              let bossSchedules = closestBosses(weekday: nowWeekday, filterSecond: filterSecond) else { return }
+              let bossSchedules = closestBosses(weekday: nowWeekday, filterSecond: nowSecond) else { return }
         
         if isBossCheck {
             guard let bossSchedule = bossSchedules.first else { return }
@@ -484,12 +488,7 @@ private extension BotViewModel {
                     .map { "`\($0.name)`" }
                     .joined(separator: "、")
                 
-                var bossTitleString: String {
-                    guard command == .頭目 else { return "世界王" }
-                    return "頭目"
-                }
-                
-                let sendMessage = ":stopwatch:" + " 下一批\(bossTitleString) " + "`\(bossTime)`" + " - " + " \(boss)"
+                let sendMessage = ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " - " + " \(boss)"
                 
                 send.accept(.init(channel: message.channel,
                                   messageString: sendMessage))
