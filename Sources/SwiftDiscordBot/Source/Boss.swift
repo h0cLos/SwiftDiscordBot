@@ -460,6 +460,20 @@ var bossJson: Data? {
             }
           ],
           "boss": "肯恩特_木拉卡"
+        },
+        {
+          "schedule": [
+            {
+              "times": [
+                {
+                  "hour": 16,
+                  "minute": 0
+                }
+              ],
+              "weekday": 7
+            }
+          ],
+          "boss": "黑暗影子"
         }
       ]
     }

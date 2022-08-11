@@ -16,7 +16,7 @@ struct App {
     // 基本設定
     static let nickname = environment["NICKNAME"] ?? "debugMode"
     static let prefixString = "!"
-    static let playing = "弄壞玩家易碎的心"
+    static let playing = "你各位的琉飾品"
     static let bot = Bot(token: discordToken)
     
     // private
