@@ -27,7 +27,6 @@ class Bot: Sword {
         case 分流列表
         case 分流
         case 赫敦
-        case 季節
         case 骰子
         case 退坑
         case 世界王
@@ -49,8 +48,6 @@ class Bot: Sword {
                 return "隨機挑選分流 (包含赫敦分流)"
             case .赫敦:
                 return "隨機挑選赫敦分流"
-            case .季節:
-                return "隨機挑選季節分流"
             case .骰子:
                 return "隨機挑選 1-28 的秒數"
             case .退坑:
@@ -74,15 +71,6 @@ class Bot: Sword {
             switch self {
             case .幫助, .測試, .世界王檢查:
                 return false
-            default:
-                return true
-            }
-        }
-        /// 是否啟用
-        var isActive: Bool {
-            switch self {
-            case .季節:
-                return App.isSeasonMode
             default:
                 return true
             }
