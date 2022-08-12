@@ -208,7 +208,7 @@ private extension BotViewModel {
     
     func unknownCommand(channel: TextChannel) {
         send.accept(.init(channel: channel,
-                          messageString: "<:thuunk:987231279063904286>" + " 找不到相關指令，或可能指令已經移除"))
+                          messageString: "<:thuunk:987231279063904286>" + " 找不到相關指令"))
     }
     
     func serialNumberCommand(messageBody: String?, channel: TextChannel) {
