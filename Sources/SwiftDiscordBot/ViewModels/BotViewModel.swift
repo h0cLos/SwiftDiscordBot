@@ -109,14 +109,15 @@ extension BotViewModel: BotViewModelIntput {
         
         // 指令
         guard let messageCommand = messageContentArrays.first,
-              let command = Bot.Command(rawValue: messageCommand.uppercased()) else { return }
+              let command = Bot.Command(rawValue: messageCommand.uppercased()) else {
+            unknownCommand(channel: message.channel)
+            return
+        }
         
         // 指令後帶的內容
         var messageBody: String? {
             guard messageContentArrays.count > 1,
-                  let body = messageContentArrays.last else {
-                      return nil
-                  }
+                  let body = messageContentArrays.last else { return nil }
             
             return body
         }
@@ -129,7 +130,7 @@ extension BotViewModel: BotViewModelIntput {
                                 channel: message.channel)
         case .分流列表:
             serviceDiversionListCommand(channel: message.channel)
-        case .季節, .分流, .赫敦:
+        case .分流, .赫敦:
             serviceDiversionCommand(command: command,
                                     channel: message.channel)
         case .骰子, .退坑:
@@ -169,15 +170,7 @@ extension BotViewModel: BotViewModelOutput {
 private extension ServiceDiversion {
     /// 格式化名稱
     var formatName: String {
-        var replyName = ":map: `" + nickName + "`"
-        
-        guard !isSeason else {
-            if isPvp {
-                replyName += " :crossed_swords:"
-            }
-            
-            return replyName
-        }
+        var replyName = ":map: `" + name + "`"
         
         guard isHutton else {
             return replyName
@@ -198,7 +191,6 @@ private extension BotViewModel {
         // 普通指令
         let commandHelp = Bot.Command
             .allCases
-            .filter { $0.isActive }
             .filter { $0.isPresent }
             .filter { !$0.isTest }
             .map { ":bulb: `\(App.prefixString)\($0)` - `\($0.description)`" }
@@ -212,6 +204,11 @@ private extension BotViewModel {
         
         send.accept(.init(channel: channel,
                           messageString: (commandHelp + commandTest).joined(separator: "\n")))
+    }
+    
+    func unknownCommand(channel: TextChannel) {
+        send.accept(.init(channel: channel,
+                          messageString: "<:thuunk:987231279063904286>" + " 找不到相關指令，或可能指令已經移除"))
     }
     
     func serialNumberCommand(messageBody: String?, channel: TextChannel) {
@@ -255,11 +252,9 @@ private extension BotViewModel {
     }
     
     func serviceDiversionListCommand(channel: TextChannel) {
-        let isSeasonMode = App.isSeasonMode
         let serviceDiversionList = ServiceDiversion
             .allCases
             .filter { $0.isActive }
-            .filter { isSeasonMode ? true : !$0.isSeason }
             .map { $0.formatName }
         
         send.accept(.init(channel: channel,
@@ -271,17 +266,9 @@ private extension BotViewModel {
             return command == .赫敦
         }
         
-        var isSeason: Bool {
-            return command == .季節
-        }
-        
-        guard command.isActive else { return }
-        
-        let isSeasonMode = App.isSeasonMode
         let probabilityItem: [ProbabilityItem<ServiceDiversion>] = ServiceDiversion
             .allCases
             .filter { $0.isActive }
-            .filter { isSeason ? $0.isSeason : (isSeasonMode ? true : !$0.isSeason) }
             .filter { isHutton ? $0.isHutton : true }
             .map { .init(item: $0, percent: 10) }
         
@@ -554,10 +541,10 @@ private extension BotViewModel {
     func bonusAPCommand(messageBody: String?, channel: TextChannel) {
         guard let messageBody = messageBody,
               let nowAP = Int(messageBody) else {
-                  send.accept(.init(channel: channel,
-                                    messageString: ":mag_right:" + " 內容有誤，請再次確認"))
-                  return
-              }
+            send.accept(.init(channel: channel,
+                              messageString: ":mag_right:" + " 內容有誤，請再次確認"))
+            return
+        }
         
         let bonusList = BonusAP
             .allCases
@@ -565,10 +552,10 @@ private extension BotViewModel {
         
         guard bonusList.isNotEmpty,
               let last = bonusList.last else {
-                  send.accept(.init(channel: channel,
-                                    messageString: ":clipboard:" + " 沒有套用獎勵攻擊力"))
-                  return
-              }
+            send.accept(.init(channel: channel,
+                              messageString: ":clipboard:" + " 沒有套用獎勵攻擊力"))
+            return
+        }
         
         let apScope = "(\(last.rawValue)~" + last.maxAP + ")"
         let apBonusAttack = "套用獎勵攻擊力 `\(last.bonusAttack)`"
@@ -580,10 +567,10 @@ private extension BotViewModel {
     func bonusDPCommand(messageBody: String?, channel: TextChannel) {
         guard let messageBody = messageBody,
               let nowDP = Int(messageBody) else {
-                  send.accept(.init(channel: channel,
-                                    messageString: ":mag_right:" + " 內容有誤，請再次確認"))
-                  return
-              }
+            send.accept(.init(channel: channel,
+                              messageString: ":mag_right:" + " 內容有誤，請再次確認"))
+            return
+        }
         
         let bonusList = BonusDP
             .allCases
@@ -591,10 +578,10 @@ private extension BotViewModel {
         
         guard bonusList.isNotEmpty,
               let last = bonusList.last else {
-                  send.accept(.init(channel: channel,
-                                    messageString: ":clipboard:" + " 沒有套用追加傷害減少"))
-                  return
-              }
+            send.accept(.init(channel: channel,
+                              messageString: ":clipboard:" + " 沒有套用追加傷害減少"))
+            return
+        }
         
         let dpScope = "(\(last.rawValue)~" + last.maxDP + ")"
         let dpBonusDefense = "套用追加傷害減少 `\(last.bonusDefense)` %"
