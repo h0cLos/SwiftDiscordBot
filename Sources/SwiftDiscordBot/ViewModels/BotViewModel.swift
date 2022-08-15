@@ -137,10 +137,8 @@ extension BotViewModel: BotViewModelIntput, BotViewModelOutput {
             boss(message: messageCommand)
         case .運勢:
             omikuji(message: messageCommand)
-        case .AP:
-            bonusAP(message: messageCommand)
-        case .DP:
-            bonusDP(message: messageCommand)
+        case .AP, .DP:
+            bonus(message: messageCommand)
         case .測試:
             App.log("\(message)")
         }
