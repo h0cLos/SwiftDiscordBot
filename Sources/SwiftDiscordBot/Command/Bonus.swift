@@ -10,6 +10,7 @@ extension BotViewModel {
         guard let optional = data.optional,
               let now = Int(optional) else {
             sendMessage.accept(.init(channel: data.message.channel,
+                                     messageId: nil,
                                      messageString: ":mag_right:" + " 內容有誤，請再次確認"))
             return
         }
@@ -44,6 +45,7 @@ extension BotViewModel {
         guard let messageString = bonusString else { return }
         
         sendMessage.accept(.init(channel: data.message.channel,
+                                 messageId: nil,
                                  messageString: ":clipboard: " + messageString))
     }
 }

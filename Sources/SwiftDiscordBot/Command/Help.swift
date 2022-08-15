@@ -22,6 +22,7 @@ extension BotViewModel {
             .map { ":hammer_pick: `\(App.prefixString)\($0)` - `\($0.description)`" }
         
         sendMessage.accept(.init(channel: data.message.channel,
+                                 messageId: nil,
                                  messageString: (commandHelp + commandTest).joined(separator: "\n")))
     }
 }

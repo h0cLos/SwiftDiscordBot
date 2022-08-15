@@ -13,6 +13,7 @@ extension BotViewModel {
             .map { $0.formatName }
         
         sendMessage.accept(.init(channel: data.message.channel,
+                                 messageId: nil,
                                  messageString: serviceDiversionList.joined(separator: "\n")))
     }
     
@@ -30,6 +31,7 @@ extension BotViewModel {
         guard let random = random(in: probabilityItem) else { return }
         
         sendMessage.accept(.init(channel: data.message.channel,
+                                 messageId: nil,
                                  messageString: random.item.formatName))
     }
 }
