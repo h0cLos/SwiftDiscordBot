@@ -176,6 +176,6 @@ private extension Bot {
         
         viewModel
             .sets
-            .setBossSchedule()
+            .bossSchedule()
     }
 }
