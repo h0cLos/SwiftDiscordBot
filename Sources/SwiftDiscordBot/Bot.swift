@@ -19,7 +19,6 @@ class Bot: Sword {
         /// 隱形
         case invisible
     }
-    
     /// 指令
     enum Command: String, CaseIterable {
         case 幫助
@@ -168,7 +167,7 @@ private extension Bot {
         
         viewModel
             .gets
-            .send
+            .sendMessage
             .subscribe(onNext: {
                 $0.channel.send($0.messageString)
             })
@@ -176,6 +175,6 @@ private extension Bot {
         
         viewModel
             .sets
-            .setBossSchedule()
+            .bossSchedule()
     }
 }

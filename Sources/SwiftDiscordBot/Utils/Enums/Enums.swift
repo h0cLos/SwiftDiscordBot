@@ -13,7 +13,6 @@ enum BossNoticeList: UInt64 {
         return .init(rawValue: rawValue)
     }
 }
-
 /// 分流
 enum ServiceDiversion: String, CaseIterable {
     case 阿勒沙
@@ -87,7 +86,6 @@ enum ServiceDiversion: String, CaseIterable {
         }
     }
 }
-
 /// 世界王
 enum Boss: String, Codable {
     case 克價卡
@@ -104,7 +102,6 @@ enum Boss: String, Codable {
         return rawValue.replacingOccurrences(of: "_", with: "/")
     }
 }
-
 /// 星期
 enum WeekDay: Int, Codable, CaseIterable {
     /// 星期日
@@ -124,7 +121,6 @@ enum WeekDay: Int, Codable, CaseIterable {
     /// 未知
     case unknown
 }
-
 /// 運勢
 enum Omikuji: String, CaseIterable {
     case 超級大吉
@@ -160,7 +156,6 @@ enum Omikuji: String, CaseIterable {
         }
     }
 }
-
 /// 面板獎勵: AP
 enum BonusAP: Int, CaseIterable {
     case lv1 = 249
@@ -274,7 +269,6 @@ enum BonusAP: Int, CaseIterable {
         }
     }
 }
-
 /// 面板獎勵: DP
 enum BonusDP: Int, CaseIterable {
     case lv1 = 301
