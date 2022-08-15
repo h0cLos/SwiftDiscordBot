@@ -97,7 +97,12 @@ class BotViewModel: BotViewModelPrototype {
 
 extension BotViewModel: BotViewModelIntput, BotViewModelOutput {
     func newMessage(_ message: Message, prefixString: String) {
+        let list = ChannelRemoveMessageList
+            .allCases
+            .map { $0.id }
+        
         let messageContent = message.content
+        let channelId = message.channel.id
         
         // 檢查訊息是否為非機器人發送，非機器人 isBot 會是 nil
         if message.author?.isBot ?? false {
@@ -106,7 +111,9 @@ extension BotViewModel: BotViewModelIntput, BotViewModelOutput {
         
         // 檢查字首是否為指令符號
         guard messageContent.hasPrefix(prefixString) else {
-            // 非指令文字
+            // 檢查該頻道是否在啟用名單內
+            guard list.contains(channelId) else { return }
+            // 刪除非指令文字
             removeMessage.accept(.init(channel: message.channel,
                                        messageId: message.id,
                                        messageString: messageContent))

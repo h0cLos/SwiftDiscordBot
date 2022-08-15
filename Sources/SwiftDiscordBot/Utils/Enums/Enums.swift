@@ -13,6 +13,17 @@ enum BossNoticeList: UInt64 {
         return .init(rawValue: rawValue)
     }
 }
+/// 啟用頻道訊息檢查
+enum ChannelRemoveMessageList: UInt64, CaseIterable {
+    /// bot-調教
+    case _937307583537102940 = 937307583537102940
+    /// 咩咕咪黑精靈
+    case _938000062540316673 = 938000062540316673
+    /// id
+    var id: Snowflake {
+        return .init(rawValue: rawValue)
+    }
+}
 /// 分流
 enum ServiceDiversion: String, CaseIterable {
     case 阿勒沙
