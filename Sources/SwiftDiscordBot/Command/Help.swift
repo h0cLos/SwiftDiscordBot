@@ -6,7 +6,7 @@ import Foundation
 import Sword
 
 extension BotViewModel {
-    func help(channel: TextChannel) {
+    func help(message data: MessageCommand) {
         // 普通指令
         let commandHelp = Bot.Command
             .allCases
@@ -21,7 +21,7 @@ extension BotViewModel {
             .filter { $0.isTest }
             .map { ":hammer_pick: `\(App.prefixString)\($0)` - `\($0.description)`" }
         
-        sendMessage.accept(.init(channel: channel,
+        sendMessage.accept(.init(channel: data.message.channel,
                                  messageString: (commandHelp + commandTest).joined(separator: "\n")))
     }
 }

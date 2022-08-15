@@ -15,7 +15,7 @@ protocol BotViewModelIntput {
 }
 
 protocol BotViewModelOutput {
-    var sendMessage: PublishRelay<BotViewModel.messageContent> { get }
+    var sendMessage: PublishRelay<BotViewModel.MessageContent> { get }
 }
 
 protocol BotViewModelPrototype {
@@ -32,11 +32,20 @@ class BotViewModel: BotViewModelPrototype {
         let percent: Int
     }
     /// 機器人回覆訊息
-    struct messageContent {
+    struct MessageContent {
         /// 傳送的頻道
         let channel: TextChannel
         /// 訊息內容
         let messageString: String
+    }
+    /// 接收指令
+    struct MessageCommand {
+        /// 訊息本體
+        let message: Message
+        /// 指令
+        let command: Bot.Command
+        /// 指令 optional
+        let optional: String?
     }
     /// 訊息快取
     struct CacheMessage {
@@ -55,14 +64,9 @@ class BotViewModel: BotViewModelPrototype {
         let type: ChannelType
     }
     /// 世界王日行程
-    struct BossDaySchedule {
+    struct BossDaySchedule<T> {
         let boss: Boss
-        let schedule: [ScheduleModel]
-    }
-    /// 世界王日行程 (梳理)
-    struct BossSordDaySchedule {
-        let boss: Boss
-        let schedule: [ScheduleTimesModel]
+        let schedule: [T]
     }
     /// 世界王當日時間行程
     struct BossTimeSchedule {
@@ -80,7 +84,7 @@ class BotViewModel: BotViewModelPrototype {
     var omikujiCache: [CacheMessage] = []
     
     let sword: Sword
-    let sendMessage = PublishRelay<messageContent>()
+    let sendMessage = PublishRelay<MessageContent>()
     
     required init(_ sword: Sword) {
         self.sword = sword
@@ -100,8 +104,8 @@ extension BotViewModel: BotViewModelIntput, BotViewModelOutput {
             .map { String($0) }
         
         // 指令
-        guard let messageCommand = messageContentArrays.first,
-              let command = Bot.Command(rawValue: messageCommand.uppercased()) else {
+        guard let messageContentPrefix = messageContentArrays.first,
+              let command = Bot.Command(rawValue: messageContentPrefix.uppercased()) else {
             unknown(channel: message.channel)
             return
         }
@@ -114,31 +118,29 @@ extension BotViewModel: BotViewModelIntput, BotViewModelOutput {
             return body
         }
         
+        let messageCommand: MessageCommand = .init(message: message,
+                                                   command: command,
+                                                   optional: messageBody)
+        
         switch command {
         case .幫助:
-            help(channel: message.channel)
+            help(message: messageCommand)
         case .序號:
-            serialNumber(messageBody: messageBody,
-                         channel: message.channel)
+            serialNumber(message: messageCommand)
         case .分流列表:
-            serviceDiversionList(channel: message.channel)
+            serviceDiversionList(message: messageCommand)
         case .分流, .赫敦:
-            serviceDiversion(command: command,
-                             channel: message.channel)
+            serviceDiversion(message: messageCommand)
         case .骰子, .退坑:
-            gameDice(channel: message.channel)
+            gameDice(message: messageCommand)
         case .世界王, .世界王檢查:
-            boss(messageBody: messageBody,
-                 command: command,
-                 message: message)
+            boss(message: messageCommand)
         case .運勢:
-            omikuji(message: message)
+            omikuji(message: messageCommand)
         case .AP:
-            bonusAP(messageBody: messageBody,
-                    channel: message.channel)
+            bonusAP(message: messageCommand)
         case .DP:
-            bonusDP(messageBody: messageBody,
-                    channel: message.channel)
+            bonusDP(message: messageCommand)
         case .測試:
             App.log("\(message)")
         }
