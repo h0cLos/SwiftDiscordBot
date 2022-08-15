@@ -50,7 +50,7 @@ extension BotViewModel {
                 .map { "`\($0.name)`" }
                 .joined(separator: "、")
             
-            let sendMessage = ":alarm_clock:" + " 世界王提醒 " + "`\(bossTime)`" + " - " + " \(boss)"
+            let messageString = ":alarm_clock:" + " 世界王提醒 " + "`\(bossTime)`" + " - " + " \(boss)"
             let textChannel: BossNoticeChannel = .init(lastMessageId: nil,
                                                        sword: sword,
                                                        id: BossNoticeList.textChannel.id,
@@ -83,11 +83,11 @@ extension BotViewModel {
             }
             
             bossNoticeCache.append(.init(userId: user.id.rawValue,
-                                         messageString: sendMessage,
+                                         messageString: messageString,
                                          commandMessage: message))
             
-            send.accept(.init(channel: textChannel,
-                              messageString: sendMessage))
+            sendMessage.accept(.init(channel: textChannel,
+                                     messageString: messageString))
         } else {
             switch optional {
             case .今天, .明天:
@@ -102,8 +102,8 @@ extension BotViewModel {
                         return ":stopwatch:" + " `\(bossTime)`" + " - " + " \(boss)"
                     }
                 
-                send.accept(.init(channel: message.channel,
-                                  messageString: bossScheduleList.joined(separator: "\n")))
+                sendMessage.accept(.init(channel: message.channel,
+                                         messageString: bossScheduleList.joined(separator: "\n")))
             case .empty:
                 guard let bossSchedule = bossSchedules.first else { return }
                 
@@ -113,10 +113,10 @@ extension BotViewModel {
                     .map { "`\($0.name)`" }
                     .joined(separator: "、")
                 
-                let sendMessage = ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " - " + " \(boss)"
+                let messageString = ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " - " + " \(boss)"
                 
-                send.accept(.init(channel: message.channel,
-                                  messageString: sendMessage))
+                sendMessage.accept(.init(channel: message.channel,
+                                         messageString: messageString))
             }
         }
     }

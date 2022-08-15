@@ -15,7 +15,7 @@ protocol BotViewModelIntput {
 }
 
 protocol BotViewModelOutput {
-    var send: PublishRelay<BotViewModel.messageContent> { get }
+    var sendMessage: PublishRelay<BotViewModel.messageContent> { get }
 }
 
 protocol BotViewModelPrototype {
@@ -80,7 +80,7 @@ class BotViewModel: BotViewModelPrototype {
     var omikujiCache: [CacheMessage] = []
     
     let sword: Sword
-    let send = PublishRelay<messageContent>()
+    let sendMessage = PublishRelay<messageContent>()
     
     required init(_ sword: Sword) {
         self.sword = sword

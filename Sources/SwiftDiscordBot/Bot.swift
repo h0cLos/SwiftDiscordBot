@@ -161,6 +161,8 @@ private extension Bot {
         on(.messageCreate) {
             guard let message = $0 as? Message else { return }
             
+            print(message)
+            
             viewModel
                 .sets
                 .newMessage(message, prefixString: App.prefixString)
@@ -168,7 +170,7 @@ private extension Bot {
         
         viewModel
             .gets
-            .send
+            .sendMessage
             .subscribe(onNext: {
                 $0.channel.send($0.messageString)
             })
