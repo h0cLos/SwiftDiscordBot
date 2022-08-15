@@ -87,6 +87,7 @@ extension BotViewModel {
                                          commandMessage: data.message))
             
             sendMessage.accept(.init(channel: textChannel,
+                                     messageId: nil,
                                      messageString: messageString))
         } else {
             switch optional {
@@ -103,6 +104,7 @@ extension BotViewModel {
                     }
                 
                 sendMessage.accept(.init(channel: data.message.channel,
+                                         messageId: nil,
                                          messageString: bossScheduleList.joined(separator: "\n")))
             case .empty:
                 guard let bossSchedule = bossSchedules.first else { return }
@@ -116,6 +118,7 @@ extension BotViewModel {
                 let messageString = ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " - " + " \(boss)"
                 
                 sendMessage.accept(.init(channel: data.message.channel,
+                                         messageId: nil,
                                          messageString: messageString))
             }
         }

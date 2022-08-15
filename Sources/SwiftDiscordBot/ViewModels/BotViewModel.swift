@@ -16,6 +16,7 @@ protocol BotViewModelIntput {
 
 protocol BotViewModelOutput {
     var sendMessage: PublishRelay<BotViewModel.MessageContent> { get }
+    var removeMessage: PublishRelay<BotViewModel.MessageContent> { get }
 }
 
 protocol BotViewModelPrototype {
@@ -35,6 +36,8 @@ class BotViewModel: BotViewModelPrototype {
     struct MessageContent {
         /// 傳送的頻道
         let channel: TextChannel
+        /// 訊息 Id
+        let messageId: Snowflake?
         /// 訊息內容
         let messageString: String
     }
@@ -85,6 +88,7 @@ class BotViewModel: BotViewModelPrototype {
     
     let sword: Sword
     let sendMessage = PublishRelay<MessageContent>()
+    let removeMessage = PublishRelay<MessageContent>()
     
     required init(_ sword: Sword) {
         self.sword = sword
@@ -95,8 +99,19 @@ extension BotViewModel: BotViewModelIntput, BotViewModelOutput {
     func newMessage(_ message: Message, prefixString: String) {
         let messageContent = message.content
         
+        // 檢查訊息是否為非機器人發送，非機器人 isBot 會是 nil
+        if message.author?.isBot ?? false {
+            return
+        }
+        
         // 檢查字首是否為指令符號
-        guard messageContent.hasPrefix(prefixString) else { return }
+        guard messageContent.hasPrefix(prefixString) else {
+            // 非指令文字
+            removeMessage.accept(.init(channel: message.channel,
+                                       messageId: message.id,
+                                       messageString: messageContent))
+            return
+        }
         
         let messageContentArrays = messageContent
             .replacingOccurrences(of: prefixString, with: "")

@@ -14,6 +14,7 @@ extension BotViewModel {
         guard let random = random(in: probabilityItem) else { return }
         
         sendMessage.accept(.init(channel: data.message.channel,
+                                 messageId: nil,
                                  messageString: ":game_die:" + " `" + random.item + "` 秒"))
     }
 }

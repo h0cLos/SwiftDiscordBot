@@ -8,6 +8,7 @@ import Sword
 extension BotViewModel {
     func unknown(channel: TextChannel) {
         sendMessage.accept(.init(channel: channel,
+                                 messageId: nil,
                                  messageString: "<:thuunk:987231279063904286>" + " 找不到相關指令"))
     }
 }
