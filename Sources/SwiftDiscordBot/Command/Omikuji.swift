@@ -6,8 +6,8 @@ import Foundation
 import Sword
 
 extension BotViewModel {
-    func omikuji(message: Message) {
-        guard let user = message.author else { return }
+    func omikuji(message data: MessageCommand) {
+        guard let user = data.message.author else { return }
         
         let cacheItems = omikujiCache
             .first { $0.userId == user.id.rawValue }
@@ -16,11 +16,11 @@ extension BotViewModel {
             let calendar = Calendar.current
             let components = calendar.dateComponents([.second],
                                                      from: item.commandMessage.timestamp,
-                                                     to: message.timestamp)
+                                                     to: data.message.timestamp)
             
             // 快取十五分鐘
             guard let second = components.second, second > 900 else {
-                sendMessage.accept(.init(channel: message.channel,
+                sendMessage.accept(.init(channel: data.message.channel,
                                          messageString: item.messageString))
                 
                 return
@@ -55,9 +55,9 @@ extension BotViewModel {
         
         omikujiCache.append(.init(userId: user.id.rawValue,
                                   messageString: messageString,
-                                  commandMessage: message))
+                                  commandMessage: data.message))
         
-        sendMessage.accept(.init(channel: message.channel,
+        sendMessage.accept(.init(channel: data.message.channel,
                                  messageString: messageString))
     }
 }

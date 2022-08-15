@@ -6,9 +6,9 @@ import Foundation
 import Sword
 
 extension BotViewModel {
-    func serialNumber(messageBody: String?, channel: TextChannel) {
-        guard let bodyArrays = messageBody?.components(separatedBy: ","), bodyArrays.count > 2 else {
-            sendMessage.accept(.init(channel: channel,
+    func serialNumber(message data: MessageCommand) {
+        guard let bodyArrays = data.optional?.components(separatedBy: ","), bodyArrays.count > 2 else {
+            sendMessage.accept(.init(channel: data.message.channel,
                                      messageString: ":mag_right:" + " 內容有誤，請再次確認"))
             
             return
@@ -42,7 +42,7 @@ extension BotViewModel {
             }
             .joined(separator: "\n")
         
-        sendMessage.accept(.init(channel: channel,
+        sendMessage.accept(.init(channel: data.message.channel,
                                  messageString: ":keyboard:" + " 序號內容：\n" + "```\ndiff\n\(messageString)```"))
     }
 }

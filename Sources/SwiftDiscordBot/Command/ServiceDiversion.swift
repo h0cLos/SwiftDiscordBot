@@ -6,19 +6,19 @@ import Foundation
 import Sword
 
 extension BotViewModel {
-    func serviceDiversionList(channel: TextChannel) {
+    func serviceDiversionList(message data: MessageCommand) {
         let serviceDiversionList = ServiceDiversion
             .allCases
             .filter { $0.isActive }
             .map { $0.formatName }
         
-        sendMessage.accept(.init(channel: channel,
+        sendMessage.accept(.init(channel: data.message.channel,
                                  messageString: serviceDiversionList.joined(separator: "\n")))
     }
     
-    func serviceDiversion(command: Bot.Command, channel: TextChannel) {
+    func serviceDiversion(message data: MessageCommand) {
         var isHutton: Bool {
-            return command == .赫敦
+            return data.command == .赫敦
         }
         
         let probabilityItem: [ProbabilityItem<ServiceDiversion>] = ServiceDiversion
@@ -29,7 +29,7 @@ extension BotViewModel {
         
         guard let random = random(in: probabilityItem) else { return }
         
-        sendMessage.accept(.init(channel: channel,
+        sendMessage.accept(.init(channel: data.message.channel,
                                  messageString: random.item.formatName))
     }
 }

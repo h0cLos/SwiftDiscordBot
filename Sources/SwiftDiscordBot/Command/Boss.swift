@@ -6,18 +6,18 @@ import Foundation
 import Sword
 
 extension BotViewModel {
-    func boss(messageBody: String?, command: Bot.Command, message: Message) {
-        guard let user = message.author else { return }
+    func boss(message data: MessageCommand) {
+        guard let user = data.message.author else { return }
         
         var isBossCheck: Bool {
-            return command == .世界王檢查
+            return data.command == .世界王檢查
         }
         
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(secondsFromGMT: 8 * 60 * 60)!
         
         let date = Date()
-        let optional = Bot.世界王指令選項(rawValue: messageBody ?? .init()) ?? .empty
+        let optional = Bot.世界王指令選項(rawValue: data.optional ?? .init()) ?? .empty
         
         var weekday: Int {
             guard !isBossCheck, optional != .empty else {
@@ -67,7 +67,7 @@ extension BotViewModel {
                 let calendar = Calendar.current
                 let components = calendar.dateComponents([.second],
                                                          from: item.commandMessage.timestamp,
-                                                         to: message.timestamp)
+                                                         to: data.message.timestamp)
                 
                 // 凍結三分鐘的發言
                 guard let second = components.second, second > 180 else {
@@ -84,7 +84,7 @@ extension BotViewModel {
             
             bossNoticeCache.append(.init(userId: user.id.rawValue,
                                          messageString: messageString,
-                                         commandMessage: message))
+                                         commandMessage: data.message))
             
             sendMessage.accept(.init(channel: textChannel,
                                      messageString: messageString))
@@ -102,7 +102,7 @@ extension BotViewModel {
                         return ":stopwatch:" + " `\(bossTime)`" + " - " + " \(boss)"
                     }
                 
-                sendMessage.accept(.init(channel: message.channel,
+                sendMessage.accept(.init(channel: data.message.channel,
                                          messageString: bossScheduleList.joined(separator: "\n")))
             case .empty:
                 guard let bossSchedule = bossSchedules.first else { return }
@@ -115,7 +115,7 @@ extension BotViewModel {
                 
                 let messageString = ":stopwatch:" + " 下一批世界王 " + "`\(bossTime)`" + " - " + " \(boss)"
                 
-                sendMessage.accept(.init(channel: message.channel,
+                sendMessage.accept(.init(channel: data.message.channel,
                                          messageString: messageString))
             }
         }
@@ -127,7 +127,7 @@ private extension BotViewModel {
         guard let model = bossScheduleModel else { return [] }
         
         // 列出今日的世界王
-        let todaySchedule: [BossDaySchedule] = model
+        let todaySchedule: [BossDaySchedule<ScheduleModel>] = model
             .boss
             .map {
                 let schedule = $0
@@ -151,7 +151,7 @@ private extension BotViewModel {
             .unique()
             .map {
                 let second = $0
-                let sordBoss: [BossSordDaySchedule] = todaySchedule
+                let sordBoss: [BossDaySchedule<ScheduleTimesModel>] = todaySchedule
                     .map {
                         let dayTimeSchedule = $0.schedule
                             .map {
