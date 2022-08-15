@@ -8,13 +8,13 @@ import Sword
 extension BotViewModel {
     func serialNumber(messageBody: String?, channel: TextChannel) {
         guard let bodyArrays = messageBody?.components(separatedBy: ","), bodyArrays.count > 2 else {
-            send.accept(.init(channel: channel,
-                              messageString: ":mag_right:" + " 內容有誤，請再次確認"))
+            sendMessage.accept(.init(channel: channel,
+                                     messageString: ":mag_right:" + " 內容有誤，請再次確認"))
             
             return
         }
         
-        let messageContent = bodyArrays
+        let messageString = bodyArrays
             .enumerated()
             .map {
                 switch $0.offset {
@@ -42,7 +42,7 @@ extension BotViewModel {
             }
             .joined(separator: "\n")
         
-        send.accept(.init(channel: channel,
-                          messageString: ":keyboard:" + " 序號內容：\n" + "```\ndiff\n\(messageContent)```"))
+        sendMessage.accept(.init(channel: channel,
+                                 messageString: ":keyboard:" + " 序號內容：\n" + "```\ndiff\n\(messageString)```"))
     }
 }

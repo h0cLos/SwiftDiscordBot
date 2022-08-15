@@ -20,8 +20,8 @@ extension BotViewModel {
             
             // 快取十五分鐘
             guard let second = components.second, second > 900 else {
-                send.accept(.init(channel: message.channel,
-                                  messageString: item.messageString))
+                sendMessage.accept(.init(channel: message.channel,
+                                         messageString: item.messageString))
                 
                 return
             }
@@ -51,13 +51,13 @@ extension BotViewModel {
             }
         }
         
-        let sendMessage = emoji + " 當前運勢" + " `" + random.item.rawValue + "`"
+        let messageString = emoji + " 當前運勢" + " `" + random.item.rawValue + "`"
         
         omikujiCache.append(.init(userId: user.id.rawValue,
-                                  messageString: sendMessage,
+                                  messageString: messageString,
                                   commandMessage: message))
         
-        send.accept(.init(channel: message.channel,
-                          messageString: sendMessage))
+        sendMessage.accept(.init(channel: message.channel,
+                                 messageString: messageString))
     }
 }

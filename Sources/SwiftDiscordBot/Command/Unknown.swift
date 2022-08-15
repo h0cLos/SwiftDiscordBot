@@ -7,7 +7,7 @@ import Sword
 
 extension BotViewModel {
     func unknown(channel: TextChannel) {
-        send.accept(.init(channel: channel,
-                          messageString: "<:thuunk:987231279063904286>" + " 找不到相關指令"))
+        sendMessage.accept(.init(channel: channel,
+                                 messageString: "<:thuunk:987231279063904286>" + " 找不到相關指令"))
     }
 }

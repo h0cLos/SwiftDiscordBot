@@ -12,8 +12,8 @@ extension BotViewModel {
             .filter { $0.isActive }
             .map { $0.formatName }
         
-        send.accept(.init(channel: channel,
-                          messageString: serviceDiversionList.joined(separator: "\n")))
+        sendMessage.accept(.init(channel: channel,
+                                 messageString: serviceDiversionList.joined(separator: "\n")))
     }
     
     func serviceDiversion(command: Bot.Command, channel: TextChannel) {
@@ -29,8 +29,8 @@ extension BotViewModel {
         
         guard let random = random(in: probabilityItem) else { return }
         
-        send.accept(.init(channel: channel,
-                          messageString: random.item.formatName))
+        sendMessage.accept(.init(channel: channel,
+                                 messageString: random.item.formatName))
     }
 }
 

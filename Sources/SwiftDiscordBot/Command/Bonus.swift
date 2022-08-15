@@ -9,8 +9,8 @@ extension BotViewModel {
     func bonusAP(messageBody: String?, channel: TextChannel) {
         guard let messageBody = messageBody,
               let nowAP = Int(messageBody) else {
-            send.accept(.init(channel: channel,
-                              messageString: ":mag_right:" + " 內容有誤，請再次確認"))
+            sendMessage.accept(.init(channel: channel,
+                                     messageString: ":mag_right:" + " 內容有誤，請再次確認"))
             return
         }
         
@@ -20,23 +20,23 @@ extension BotViewModel {
         
         guard bonusList.isNotEmpty,
               let last = bonusList.last else {
-            send.accept(.init(channel: channel,
-                              messageString: ":clipboard:" + " 沒有套用獎勵攻擊力"))
+            sendMessage.accept(.init(channel: channel,
+                                     messageString: ":clipboard:" + " 沒有套用獎勵攻擊力"))
             return
         }
         
         let apScope = "(\(last.rawValue)~" + last.maxAP + ")"
         let apBonusAttack = "套用獎勵攻擊力 `\(last.bonusAttack)`"
         
-        send.accept(.init(channel: channel,
-                          messageString: ":clipboard:" + " AP `" + messageBody + "` " + apScope + "，" + apBonusAttack))
+        sendMessage.accept(.init(channel: channel,
+                                 messageString: ":clipboard:" + " AP `" + messageBody + "` " + apScope + "，" + apBonusAttack))
     }
     
     func bonusDP(messageBody: String?, channel: TextChannel) {
         guard let messageBody = messageBody,
               let nowDP = Int(messageBody) else {
-            send.accept(.init(channel: channel,
-                              messageString: ":mag_right:" + " 內容有誤，請再次確認"))
+            sendMessage.accept(.init(channel: channel,
+                                     messageString: ":mag_right:" + " 內容有誤，請再次確認"))
             return
         }
         
@@ -46,15 +46,15 @@ extension BotViewModel {
         
         guard bonusList.isNotEmpty,
               let last = bonusList.last else {
-            send.accept(.init(channel: channel,
-                              messageString: ":clipboard:" + " 沒有套用追加傷害減少"))
+            sendMessage.accept(.init(channel: channel,
+                                     messageString: ":clipboard:" + " 沒有套用追加傷害減少"))
             return
         }
         
         let dpScope = "(\(last.rawValue)~" + last.maxDP + ")"
         let dpBonusDefense = "套用追加傷害減少 `\(last.bonusDefense)` %"
         
-        send.accept(.init(channel: channel,
-                          messageString: ":clipboard:" + " DP `" + messageBody + "` " + dpScope + "，" + dpBonusDefense))
+        sendMessage.accept(.init(channel: channel,
+                                 messageString: ":clipboard:" + " DP `" + messageBody + "` " + dpScope + "，" + dpBonusDefense))
     }
 }
