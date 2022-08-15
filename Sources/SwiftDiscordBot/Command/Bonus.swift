@@ -14,7 +14,7 @@ extension BotViewModel {
             return
         }
         
-        var messageString: String? {
+        var bonusString: String? {
             switch data.command {
             case .AP:
                 let list = BonusAP
@@ -41,7 +41,7 @@ extension BotViewModel {
             }
         }
         
-        guard let messageString = messageString else { return }
+        guard let messageString = bonusString else { return }
         
         sendMessage.accept(.init(channel: data.message.channel,
                                  messageString: ":clipboard: " + messageString))
