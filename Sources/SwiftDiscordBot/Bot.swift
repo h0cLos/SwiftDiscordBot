@@ -174,6 +174,16 @@ private extension Bot {
             .disposed(by: disposeBag)
         
         viewModel
+            .gets
+            .removeMessage
+            .subscribe(onNext: {
+                guard let messageId = $0.messageId else { return }
+                
+                $0.channel.deleteMessage(messageId)
+            })
+            .disposed(by: disposeBag)
+        
+        viewModel
             .sets
             .bossSchedule()
     }

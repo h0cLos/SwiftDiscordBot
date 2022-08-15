@@ -21,6 +21,7 @@ extension BotViewModel {
             // 快取十五分鐘
             guard let second = components.second, second > 900 else {
                 sendMessage.accept(.init(channel: data.message.channel,
+                                         messageId: nil,
                                          messageString: item.messageString))
                 
                 return
@@ -58,6 +59,7 @@ extension BotViewModel {
                                   commandMessage: data.message))
         
         sendMessage.accept(.init(channel: data.message.channel,
+                                 messageId: nil,
                                  messageString: messageString))
     }
 }
