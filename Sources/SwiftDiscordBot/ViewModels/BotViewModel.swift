@@ -104,13 +104,10 @@ extension BotViewModel: BotViewModelIntput, BotViewModelOutput {
         let messageContent = message.content
         let channelId = message.channel.id
         
-        // 檢查訊息是否為非機器人發送，非機器人 isBot 會是 nil
-        if message.author?.isBot ?? false {
-            return
-        }
-        
         // 檢查字首是否為指令符號
         guard messageContent.hasPrefix(prefixString) else {
+            // 檢查訊息是否為非機器人發送，非機器人 isBot 會是 nil
+            guard !(message.author?.isBot ?? false) else { return }
             // 檢查該頻道是否在啟用名單內
             guard list.contains(channelId) else { return }
             // 刪除非指令文字
